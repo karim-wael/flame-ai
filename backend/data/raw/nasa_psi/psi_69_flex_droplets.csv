@@ -1,0 +1,5 @@
+droplet_test_id,liquid_fuel,initial_diameter_mm,o2_mol_fraction,chamber_pressure_atm,convective_drift_cm_s,burning_rate_k_mm2_s,extinction_diameter_mm,soot_shell_standoff_ratio,cool_flame_observed,notes
+FLEX-D01,n-Heptane,3.1,0.21,1.0,0.4,0.58,1.12,2.45,true,"Spherical droplet burn transitioning from radiative hot-flame extinction to second-stage cool flame"
+FLEX-D02,n-Heptane,2.8,0.18,1.0,0.2,0.49,1.38,2.60,true,"Reduced O2 accelerates radiative extinction at larger droplet diameter"
+FLEX-D03,Methanol,3.4,0.21,1.0,0.3,0.54,0.95,,false,"Soot-free alcohol droplet; water absorption into liquid phase induces diffusive extinction"
+FLEX-D04,n-Decane,3.2,0.21,1.2,0.5,0.61,1.05,2.30,true,"Dense concentric soot shell formed inside flame front via thermophoretic trapping"

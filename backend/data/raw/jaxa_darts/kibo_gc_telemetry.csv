@@ -1,0 +1,5 @@
+gc_telemetry_id,fuel_compound,group_combustion_number_G,mean_droplet_diam_mm,interdroplet_spacing_mm,o2_vol_pct,kibo_chamber_pressure_kpa,residual_drift_mm_s,flame_propagation_speed_mm_s,cluster_burning_rate_mm2_s,extinction_mode,notes
+KIBO-GC-01,n-Decane Droplet Cloud,1.85,0.92,4.2,21.0,101.3,1.5,14.8,0.44,external_sheath_burnout,"External group combustion regime; unified spherical flame wraps outer boundary of n-decane cloud"
+KIBO-GC-02,n-Decane Droplet Cloud,0.62,0.85,7.8,21.0,101.3,1.2,9.2,0.52,individual_droplet_burnout,"Internal group combustion transitioning to percolated droplet-to-droplet ignition across cloud"
+KIBO-GC-03,n-Decane Droplet Cloud,3.40,1.05,3.1,21.0,101.3,,6.4,0.31,oxygen_starvation_core_quench,"Dense cloud core oxygen depletion; telemetry drift sensor unavailable during ignition pulse"
+KIBO-GC-04,n-Decane Droplet Cloud,1.40,0.88,4.9,18.0,101.3,1.8,7.9,0.36,radiative_cloud_extinction,"Hypoxic atmosphere in Kibo GC chamber reduces inter-droplet flame percolation velocity"

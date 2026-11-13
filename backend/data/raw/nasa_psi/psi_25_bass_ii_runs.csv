@@ -1,0 +1,8 @@
+test_id,sample_material,geometry,orientation,o2_vol_pct,cabin_pressure_psia,fan_flow_cm_s,ambient_temp_c,ignition_delay_s,flame_spread_mm_s,flame_length_mm,extinction_flow_cm_s,notes
+BASS2-T01,PMMA (Acrylic Rod),cylindrical_rod_6.4mm,opposed_flow,21.0,14.7,5.0,22.4,4.2,1.18,18.5,1.2,"Steady blue hemispherical flame cap in low-velocity microgravity forced flow"
+BASS2-T02,PMMA (Acrylic Rod),cylindrical_rod_6.4mm,opposed_flow,21.0,14.7,10.0,22.6,3.8,1.64,24.2,1.2,"Increased forced convection enhances oxidizer transport to flame front"
+BASS2-T03,PMMA (Acrylic Rod),cylindrical_rod_6.4mm,opposed_flow,21.0,14.7,2.0,22.3,5.1,0.72,12.1,1.2,"Near-quenching diffusive regime; radiative heat loss approaches generation"
+BASS2-T04,Cotton-Fiberglass Blend (SIBAL),flat_sheet_20mm,concurrent_flow,21.0,14.7,8.0,23.0,1.9,3.45,38.0,1.5,"Concurrent flow spread over thin cellulosic fabric in MSG glovebox"
+BASS2-T05,Cotton-Fiberglass Blend (SIBAL),flat_sheet_20mm,concurrent_flow,18.5,14.7,4.0,22.8,2.6,1.82,,1.8,"Flame length obscured by viewport frame during steady spread phase"
+BASS2-T06,Nomex HT90-40 Fabric,flat_sheet_20mm,concurrent_flow,26.5,10.2,12.0,23.1,2.4,2.15,29.4,3.5,"Exploration atmosphere analog (elevated O2, reduced cabin pressure)"
+BASS2-T07,Ultem 1000 (Polyetherimide),flat_slab_3mm,opposed_flow,21.0,14.7,,22.5,8.7,0.34,9.8,4.0,"Hot-wire anemometer calibration drift during test; flow velocity omitted"

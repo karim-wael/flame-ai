@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: flare_ai_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: flare_user
+      POSTGRES_PASSWORD: flare_password
+      POSTGRES_DB: flare_ai
+    ports:
+      - "5432:5432"
+    volumes:
+      - flare_pgdata:/var/lib/postgresql/data
+      - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flare_user -d flare_ai"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  flare_pgdata:

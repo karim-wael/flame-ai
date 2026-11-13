@@ -1,0 +1,168 @@
+{
+  "corpus_version": "2.0.0",
+  "documents": [
+    {
+      "doc_id": "DOC-PSI-25-BASSII",
+      "external_investigation_id": "PSI-25",
+      "source_publisher": "NASA PSI",
+      "title": "Burning and Suppression of Solids - II (BASS-II) Science Summary & Forced-Flow Extinction Report",
+      "doc_type": "pdf_report",
+      "doi": "10.60555/4qc4-de67",
+      "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+      "publication_year": 2018,
+      "authors": "Olson, S. L.; Ferkul, P. V.; T'ien, J. S.; Bhattacharjee, S.",
+      "chunks": [
+        {
+          "chunk_index": 0,
+          "section_title": "Why Flame Spread Behaves Differently in Microgravity vs Normal Gravity",
+          "combustion_domain": "solid",
+          "gravity_regime": "microgravity",
+          "fuel_tags": ["PMMA", "Cotton-Fiberglass (SIBAL)", "Nomex", "Ultem"],
+          "keywords": ["flame spread", "microgravity", "buoyancy", "forced flow", "diffusion", "radiation", "quenching", "BASS-II"],
+          "content_text": "In normal gravity (1g), density gradients caused by hot combustion products induce strong upward buoyant convection (typically 30 to 100 cm/s), which continuously entrains fresh oxygen into the reaction zone and cools the flame through convective heat transfer. In microgravity (0g) aboard the ISS (PSI-25 BASS-II), buoyancy-driven natural convection is virtually eliminated. Consequently, oxygen transport to the flame front relies entirely on molecular diffusion and weak spacecraft HVAC ventilation flows (1 to 20 cm/s). At low forced-flow velocities (2 to 10 cm/s), solid fuels such as PMMA rods and SIBAL cotton-fiberglass fabrics can sustain steady combustion at lower oxygen concentrations than in 1g because convective heat losses are eliminated, while radiative heat loss becomes the dominant extinction mechanism (radiative quenching limit)."
+        },
+        {
+          "chunk_index": 1,
+          "section_title": "Opposed vs Concurrent Low-Velocity Flow Regimes in BASS-II",
+          "combustion_domain": "solid",
+          "gravity_regime": "microgravity",
+          "fuel_tags": ["PMMA", "Cotton-Fiberglass (SIBAL)"],
+          "keywords": ["extinction limit", "flow velocity", "oxygen fraction", "PMMA", "SIBAL", "opposed flow", "concurrent flow"],
+          "content_text": "BASS-II tests in the ISS Microgravity Science Glovebox (MSG) demonstrated that flame spread rate and flame length over solid PMMA rods and thin SIBAL sheets are non-monotonic functions of oxidizing flow velocity. In the near-quiescent diffusive regime (< 2 cm/s), radiative heat loss from the flame and solid surface exceeds chemical heat release, leading to radiative quenching. Between 2 cm/s and 12 cm/s forced flow, increasing the ventilation flow velocity linearly increases oxidizer supply to the reaction sheet, accelerating flame spread rate from 0.72 mm/s at 2 cm/s up to 1.64 mm/s at 10 cm/s on 6.4 mm PMMA rods."
+        }
+      ]
+    },
+    {
+      "doc_id": "DOC-PSI-98-SAFFIRE",
+      "external_investigation_id": "PSI-98",
+      "source_publisher": "NASA PSI",
+      "title": "Spacecraft Fire Experiment-I (SAFFIRE-I) Large-Scale Low-Gravity Flame Growth Technical Report",
+      "doc_type": "pdf_report",
+      "doi": "10.60555/0t15-1z43",
+      "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-98",
+      "publication_year": 2019,
+      "authors": "Urban, D. L.; Ruff, G. A.; Fernandez-Pello, C.; T'ien, J. S.",
+      "chunks": [
+        {
+          "chunk_index": 0,
+          "section_title": "Large-Scale Concurrent Flame Spread Limits in Spacecraft Cabins",
+          "combustion_domain": "solid",
+          "gravity_regime": "microgravity",
+          "fuel_tags": ["Cotton-Fiberglass (SIBAL)"],
+          "keywords": ["SAFFIRE-I", "large-scale fire", "flame spread", "Cygnus", "heat flux", "pyrolysis length"],
+          "content_text": "SAFFIRE-I (PSI-98) investigated concurrent-flow flame spread over a 0.4 m wide by 1.0 m long SIBAL (75% cotton / 25% fiberglass) cloth panel inside an autonomous Cygnus spacecraft after unberthing from the ISS. Unlike small glovebox coupons, large-scale microgravity flames reached a steady-state limiting length rather than growing indefinitely, because radiative heat losses from the elongated luminous flame zone balanced convective heat transfer downstream. Steady flame spread rate reached 1.92 mm/s at 20 cm/s air flow and 1.31 mm/s at 12 cm/s air flow, with peak radiative heat flux of 14.6 kW/m2."
+        }
+      ]
+    },
+    {
+      "doc_id": "DOC-PSI-107-SPICE",
+      "external_investigation_id": "PSI-107",
+      "source_publisher": "NASA PSI",
+      "title": "Smoke Point In Co-flow Experiment (SPICE) — Laminar Gas Jet Soot Propensity & Flame Length Documentation",
+      "doc_type": "pdf_report",
+      "doi": "10.60555/9kbh-e962",
+      "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-107",
+      "publication_year": 2017,
+      "authors": "Sunderland, P. B.; Urban, D. L.; Stocker, D. P.",
+      "chunks": [
+        {
+          "chunk_index": 0,
+          "section_title": "Soot Smoke Points and Residence Time in Microgravity Gas Diffusion Flames",
+          "combustion_domain": "gas",
+          "gravity_regime": "microgravity",
+          "fuel_tags": ["Ethylene (C2H4)", "Propane (C3H8)", "Methane (CH4)"],
+          "keywords": ["SPICE", "smoke point", "soot", "flame length", "burner diameter", "co-flow velocity", "ethylene", "propane"],
+          "content_text": "In the Smoke Point In Co-flow Experiment (SPICE, PSI-107), 526 laminar gas jet diffusion flames were evaluated across ethylene, propane, and methane fuels with nozzle diameters from 0.4 to 2.0 mm. Without buoyant acceleration, microgravity gas diffusion flames are broader, spherical/parabolic, and exhibit significantly longer gas-phase residence times than normal-gravity (1g) flames. Extended residence time enhances polycyclic aromatic hydrocarbon (PAH) growth and soot nucleation while increasing radiative heat loss from the flame tip, causing microgravity smoke points (the fuel mass flow rate at which soot breaks through the flame tip) to occur at 35% to 50% lower fuel flow rates than in 1g."
+        }
+      ]
+    },
+    {
+      "doc_id": "DOC-PSI-101-102-SAME",
+      "external_investigation_id": "PSI-101",
+      "source_publisher": "NASA PSI",
+      "title": "Smoke Aerosol Measurement Experiment (SAME / SAME-R) — Particle Size Distributions and Spacecraft Fire Detection",
+      "doc_type": "pdf_report",
+      "doi": "10.60555/2np7-jv14",
+      "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-101",
+      "publication_year": 2016,
+      "authors": "Urban, D. L.; Mulholland, G. W.; Yuan, Z. G.; Cleary, T.",
+      "chunks": [
+        {
+          "chunk_index": 0,
+          "section_title": "Microgravity Smoke Particle Aggregation and Spacecraft Detector Response",
+          "combustion_domain": "aerosol_smoke",
+          "gravity_regime": "microgravity",
+          "fuel_tags": ["Kapton", "Silicone", "Cellulose (Lampwick)", "Teflon"],
+          "keywords": ["SAME", "SAME-R", "smoke particle size", "aerosol", "fire detection", "count median diameter", "coagulation"],
+          "content_text": "SAME (PSI-102) and SAME-R (PSI-101) measured smoke aerosol particle size distributions from overheated spacecraft materials (Kapton wire insulation, silicone elastomers, cellulose lampwick, Teflon). Because buoyant plume dilution is absent in microgravity, pyrolysis vapors remain concentrated near the hot source longer, promoting condensation and particle coagulation. Count median diameters (CMD) in microgravity (0.28 to 0.46 um) are systematically larger than in 1g ground tests, shifting detector sensitivity from ionization detectors (which favor <0.1 um particles) toward laser/photoelectric light-scattering smoke detectors used on ISS and Orion."
+        }
+      ]
+    },
+    {
+      "doc_id": "DOC-PSI-69-FLEX",
+      "external_investigation_id": "PSI-69",
+      "source_publisher": "NASA PSI",
+      "title": "Flame Extinguishment Experiment (FLEX) — Isolated Liquid Droplet Radiative Extinction & Cool Flames",
+      "doc_type": "pdf_report",
+      "doi": "10.60555/mbq8-0451",
+      "source_url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-69",
+      "publication_year": 2015,
+      "authors": "Nayagam, V.; Dietrich, D. L.; Ferkul, P. V.; Hicks, M. C.; Williams, F. A.",
+      "chunks": [
+        {
+          "chunk_index": 0,
+          "section_title": "Spherical Liquid Droplet Combustion, Soot Shells, and Two-Stage Cool Flames",
+          "combustion_domain": "liquid_droplet",
+          "gravity_regime": "microgravity",
+          "fuel_tags": ["n-Heptane", "Methanol", "n-Decane"],
+          "keywords": ["FLEX", "droplet combustion", "d2 law", "burning rate", "cool flame", "soot shell", "radiative extinction"],
+          "content_text": "In FLEX (PSI-69) aboard the ISS Combustion Integrated Rack (CIR), isolated liquid droplets (n-heptane, n-decane, methanol) burn with nearly spherical symmetry governed by the classical d-squared law (d^2 = d0^2 - K*t). For large alkane droplets (>2.8 mm), radiative heat loss from the surrounding flame and concentric thermophoretic soot shell causes premature hot-flame radiative extinction at ~1.0 to 1.4 mm diameter, followed by self-sustained low-temperature (~650 K) cool-flame vapor oxidation."
+        }
+      ]
+    },
+    {
+      "doc_id": "DOC-JAXA-KIBO-GC",
+      "external_investigation_id": "JAXA-GC",
+      "source_publisher": "JAXA DARTS",
+      "title": "JAXA Kibo PM Group Combustion Experiment (GCE) — Randomly Distributed n-Decane Droplet Cloud Telemetry Documentation",
+      "doc_type": "pdf_report",
+      "doi": null,
+      "source_url": "https://darts.isas.jaxa.jp/en/datasets/kibo-pm-combusion-gc",
+      "publication_year": 2020,
+      "authors": "Mikami, M.; Kikuchi, M.; Kaneko, Y.; JAXA Kibo GCE Science Team",
+      "chunks": [
+        {
+          "chunk_index": 0,
+          "section_title": "Group Combustion Regimes and Flame Percolation in Microgravity Droplet Clouds",
+          "combustion_domain": "liquid_droplet",
+          "gravity_regime": "microgravity",
+          "fuel_tags": ["n-Decane Droplet Cloud"],
+          "keywords": ["JAXA", "Kibo", "group combustion", "droplet cloud", "n-decane", "Chiu group number", "percolation"],
+          "content_text": "The JAXA Kibo Group Combustion Experiment (GCE, archived in ISAS/JAXA DARTS) investigates flame propagation across 3D clouds of randomly distributed n-decane droplets in microgravity. Depending on Chiu's group combustion number G (which scales with droplet number density and inter-droplet spacing), combustion transitions from individual droplet burning (G < 1) to internal/external group combustion (G > 1), where a single envelope diffusion flame surrounds the droplet cluster and inner droplets vaporize in an oxygen-depleted core."
+        }
+      ]
+    },
+    {
+      "doc_id": "DOC-FSRI-MAP-BASELINE",
+      "external_investigation_id": "FSRI-MAP",
+      "source_publisher": "UL FSRI",
+      "title": "FSRI Materials and Products (MaP) Terrestrial Fire-Test Methodology & Domain Boundary Note",
+      "doc_type": "science_summary",
+      "doi": null,
+      "source_url": "https://materials.fsri.org/",
+      "publication_year": 2024,
+      "authors": "UL Fire Safety Research Institute (FSRI)",
+      "chunks": [
+        {
+          "chunk_index": 0,
+          "section_title": "Why Terrestrial 1g Cone Calorimeter Data Must Remain Separate from ISS Microgravity Evidence",
+          "combustion_domain": "solid",
+          "gravity_regime": "normal_gravity",
+          "fuel_tags": ["PMMA", "Cotton", "XLPE"],
+          "keywords": ["FSRI", "normal gravity", "baseline", "cone calorimeter", "1g vs 0g", "flammability"],
+          "content_text": "The FSRI Materials and Products (MaP) database provides Earth-based (1g) material thermophysical properties and ASTM E1354 Cone Calorimeter measurements across polymers, textiles, and cable insulations. In 1g tests, buoyant plume entrainment (~45 to 55 cm/s) convectively cools solid surfaces and raises the minimum oxygen concentration for upward/downward quenching compared to low-velocity (2 to 10 cm/s) microgravity flows. Therefore, FLARE AI isolates FSRI records in a dedicated terrestrial baseline track and never mixes 1g material heat release rates directly into microgravity similarity rankings."
+        }
+      ]
+    }
+  ]
+}
