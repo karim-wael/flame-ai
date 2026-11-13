@@ -9,11 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "lucide-react": "^0.460.0",
-    "next": "15.1.6",
+    "katex": "^0.19.1",
+    "next": "15.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "plotly.js-dist-min": "^2.35.2"
+    "react-markdown": "^10.1.0",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

@@ -3,7 +3,6 @@ from typing import Any, Dict, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
@@ -14,7 +13,6 @@ from .config import (
     SCIENTIFIC_DISCLAIMER,
     VALUE_STATUSES,
 )
-from .dashboard_html import DASHBOARD_HTML
 from .ingestion import run_ingestion_pipeline
 from .models import (
     DataSource,
@@ -134,11 +132,6 @@ def serialize_run(r: ExperimentRun) -> Dict[str, Any]:
             for dr in r.derived_results
         ],
     }
-
-
-@app.get("/", response_class=HTMLResponse, include_in_schema=False)
-def serve_interactive_dashboard():
-    return HTMLResponse(content=DASHBOARD_HTML)
 
 
 @app.get("/api/health")

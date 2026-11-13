@@ -248,3 +248,84 @@ export interface AssistantResponse {
   };
 }
 
+
+export interface Health {
+  status: string;
+  service: string;
+  version: string;
+  scientific_disclaimer: string;
+  counts: {
+    data_sources: number;
+    investigations: number;
+    experiment_runs: number;
+    measurements: number;
+    source_files: number;
+    field_mappings: number;
+    derived_results: number;
+    knowledge_documents: number;
+    knowledge_chunks: number;
+  };
+}
+
+export interface FieldMappingLite {
+  source_field: string;
+  canonical_field: string;
+  source_unit: string | null;
+  canonical_unit: string | null;
+  transform_description: string;
+  mapping_version?: string;
+}
+
+export interface ProvenanceFile {
+  id?: string;
+  file_name: string;
+  file_url?: string;
+  checksum_sha256: string;
+  version: string;
+  local_storage_key?: string;
+}
+
+/** /api/provenance/{id} returns one of three shapes depending on the record type. */
+export interface ProvenanceRecord {
+  record_type: "experiment_run" | "investigation" | "measurement";
+  record_id: string;
+  run_code?: string;
+  // experiment_run shape
+  investigation?: {
+    id: string | null;
+    external_id: string | null;
+    title: string | null;
+    doi: string | null;
+    version: string | null;
+    source_url: string | null;
+    gravity_regime: string | null;
+    combustion_domain: string | null;
+  };
+  source_publisher?: {
+    publisher: string | null;
+    source_name: string | null;
+    license: string | null;
+    access_date: string | null;
+    citation_text: string | null;
+    domain_track: string | null;
+  };
+  field_mappings_applied?: FieldMappingLite[];
+  derived_audit_trail?: DerivedResult[];
+  // investigation shape
+  external_id?: string;
+  title?: string;
+  doi?: string | null;
+  version?: string;
+  source_url?: string;
+  publisher?: string | null;
+  license?: string | null;
+  citation_text?: string | null;
+  source_files?: ProvenanceFile[];
+}
+
+export interface IngestionReport {
+  status: string;
+  pipeline_stages: string[];
+  counts: Record<string, number>;
+  audit_log: string[];
+}
