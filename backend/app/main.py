@@ -1,7 +1,8 @@
 from contextlib import asynccontextmanager
+import re
 from typing import Any, Dict, Optional
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
@@ -63,6 +64,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def normalize_double_slashes(request: Request, call_next):
+    path = request.scope.get("path", "")
+    if "//" in path:
+        request.scope["path"] = re.sub(r"/{2,}", "/", path)
+    return await call_next(request)
 
 
 def serialize_run(r: ExperimentRun) -> Dict[str, Any]:
@@ -135,6 +144,8 @@ def serialize_run(r: ExperimentRun) -> Dict[str, Any]:
     }
 
 
+@app.get("/")
+@app.head("/")
 @app.get("/api/health")
 def get_health(db: Session = Depends(get_db)):
     return {

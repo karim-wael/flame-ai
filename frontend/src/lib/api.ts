@@ -9,14 +9,36 @@ import {
   ProvenanceRecord,
 } from "./types";
 
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const RENDER_BACKEND_URL = "https://flame-ai-7kp8.onrender.com";
+
+function getApiBase(): string {
+  const raw = (process.env.NEXT_PUBLIC_API_URL || "")
+    .trim()
+    .replace(/\/+$/, "")
+    .replace(/\/api$/, "");
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    const isLocalHost = host === "localhost" || host === "127.0.0.1";
+    if (!isLocalHost && (!raw || raw.includes("localhost") || raw.includes("127.0.0.1"))) {
+      return RENDER_BACKEND_URL;
+    }
+  }
+  if (!raw) {
+    return process.env.NODE_ENV === "production" ? RENDER_BACKEND_URL : "http://localhost:8000";
+  }
+  return raw;
+}
+
+export const API_BASE = getApiBase();
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const base = getApiBase();
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}${path}`, init);
+    res = await fetch(`${base}${cleanPath}`, init);
   } catch {
-    throw new Error(`Can't reach the FLARE API at ${API_BASE}. Check that the backend is running.`);
+    throw new Error(`Can't reach the FLARE API at ${base}. Check that the backend is running.`);
   }
   if (!res.ok) {
     let detail = "";
