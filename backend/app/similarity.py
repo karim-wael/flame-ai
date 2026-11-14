@@ -156,7 +156,7 @@ def run_domain_gated_comparison(db: Session, req: CompareRequest) -> Dict[str, A
 
     query_mg = {
         "domain": ranking_domain,
-        "gravity_level": req.target_gravity if req.target_gravity in ("microgravity", "normal_gravity") else "microgravity",
+        "gravity": req.target_gravity if req.target_gravity in ("microgravity", "normal_gravity") else "microgravity",
         "o2_percent": round(req.oxygen_fraction * 100.0, 2),
         "pressure_psi": round(req.pressure_kpa * KPA_TO_PSI, 3),
         "airflow_cm_s": req.flow_velocity_cm_s,
@@ -168,7 +168,7 @@ def run_domain_gated_comparison(db: Session, req: CompareRequest) -> Dict[str, A
     res_1g = None
     if req.include_terrestrial_baseline:
         query_1g = dict(query_mg)
-        query_1g["gravity_level"] = "normal_gravity"
+        query_1g["gravity"] = "normal_gravity"
         res_1g = rank_experiments(table, query_1g, weights=weights_mapped, top_k=15, min_coverage=0.25)
 
     # Fetch matching DB ExperimentRuns for outcomes & metadata

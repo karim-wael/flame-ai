@@ -10,18 +10,33 @@ import { DOMAIN_LABEL, DOMAIN_OPTIONS, fieldLabel, num, OUTCOME_BY_DOMAIN, pct }
 import { useAsync, useDebounced } from "@/lib/hooks";
 import { CompareRankedItem, CompareResponse } from "@/lib/types";
 
+// `key` = API weight name; `bk` = key used by the flare_ranking engine in feature_breakdown
+// (o2 in %, pressure in psi, airflow in cm/s); `scale` converts engine units to display units.
 const FEATURES = [
-  { key: "oxygen_fraction", label: "Oxygen", unit: "pts", scale: 100, digits: 1 },
-  { key: "pressure_kpa", label: "Pressure", unit: "kPa", scale: 1, digits: 1 },
-  { key: "flow_velocity_cm_s", label: "Airflow", unit: "cm/s", scale: 1, digits: 1 },
+  { key: "oxygen_fraction", bk: "o2_percent", label: "Oxygen", unit: "pts", scale: 1, digits: 1 },
+  { key: "pressure_kpa", bk: "pressure_psi", label: "Pressure", unit: "kPa", scale: 6.89476, digits: 1 },
+  { key: "flow_velocity_cm_s", bk: "airflow_cm_s", label: "Airflow", unit: "cm/s", scale: 1, digits: 1 },
 ] as const;
 
 interface Breakdown {
   status: "measured" | "missing";
   target?: number;
   record_value?: number;
-  raw_delta?: number;
   missing_reason?: string;
+}
+
+/** Chart x-axis per fuel type: use the condition that is actually recorded for that domain. */
+// Liquid uses initial droplet diameter: FLEX matches share the same O2, and burn time vs. diameter
+// is the classic droplet-combustion (d²-law) relationship.
+const X_AXIS_BY_DOMAIN: Record<string, "flow" | "oxygen" | "diameter"> = {
+  solid: "oxygen",
+  gas: "flow",
+  liquid_droplet: "diameter",
+  aerosol_smoke: "flow",
+};
+
+function breakdownOf(item: CompareRankedItem, bk: string): Breakdown | undefined {
+  return (item.feature_breakdown as unknown as Record<string, Breakdown | undefined>)[bk];
 }
 
 function outcomeOf(item: CompareRankedItem, field: string) {
@@ -30,12 +45,14 @@ function outcomeOf(item: CompareRankedItem, field: string) {
 
 /** Plain-language summary of how close a run's conditions are to the target. */
 function whyText(item: CompareRankedItem): string {
-  return FEATURES.map((f) => {
-    const b = item.feature_breakdown[f.key] as unknown as Breakdown | undefined;
-    if (!b || b.status !== "measured" || b.raw_delta === undefined) return `${f.label.toLowerCase()} not recorded`;
-    const delta = b.raw_delta * f.scale;
-    return delta < 0.05 ? `${f.label.toLowerCase()} matches exactly` : `${f.label.toLowerCase()} differs by ${num(delta, f.digits)} ${f.unit}`;
-  }).join(", ");
+  const parts = FEATURES.flatMap((f) => {
+    const b = breakdownOf(item, f.bk);
+    if (!b) return []; // condition not used for this fuel type
+    if (b.status !== "measured" || b.record_value === undefined || b.target === undefined) return [`${f.label.toLowerCase()} not recorded`];
+    const delta = Math.abs(b.record_value - b.target) * f.scale;
+    return [delta < 0.05 ? `${f.label.toLowerCase()} matches exactly` : `${f.label.toLowerCase()} differs by ${num(delta, f.digits)} ${f.unit}`];
+  });
+  return parts.length ? parts.join(", ") : "closest recorded test conditions";
 }
 
 export default function ComparePage() {
@@ -159,7 +176,7 @@ export default function ComparePage() {
 
         {/* Right: results */}
         <div className="flex flex-col gap-space-xl lg:col-span-8">
-          {error ? <ErrorState message={error} onRetry={reload} /> : !data ? <Loading label="Ranking experiments…" /> : <Results data={data} domain={domain} flow={flow} showAll={showAll} onShowAll={() => setShowAll(true)} />}
+          {error ? <ErrorState message={error} onRetry={reload} /> : !data ? <Loading label="Ranking experiments…" /> : <Results data={data} domain={domain} flow={flow} o2={o2} showAll={showAll} onShowAll={() => setShowAll(true)} />}
         </div>
       </div>
     </>
@@ -185,18 +202,28 @@ function Slider(props: { icon: string; label: string; tone: string; accent: stri
   );
 }
 
-function Results({ data, domain, flow, showAll, onShowAll }: { data: CompareResponse; domain: string; flow: number; showAll: boolean; onShowAll: () => void }) {
+function Results({ data, domain, flow, o2, showAll, onShowAll }: { data: CompareResponse; domain: string; flow: number; o2: number; showAll: boolean; onShowAll: () => void }) {
   const openProvenance = useProvenance();
   const outcome = OUTCOME_BY_DOMAIN[domain] ?? OUTCOME_BY_DOMAIN.solid;
   const ranked = data.compatible_microgravity_ranking;
   const earth = data.terrestrial_baseline_track;
   const excluded = data.excluded_incompatible_domains;
 
+  const xAxis = X_AXIS_BY_DOMAIN[domain] ?? "flow";
+  const xCfg: { label: string; short: string; unit: string; target: number | undefined; minMax: number; value: (i: CompareRankedItem) => number | null } =
+    xAxis === "oxygen"
+      ? { label: "Oxygen (%)", short: "Oxygen", unit: "%", target: o2, minMax: 30, value: (i) => (i.oxygen_fraction !== null ? i.oxygen_fraction * 100 : null) }
+      : xAxis === "diameter"
+        ? { label: "Initial droplet diameter (mm)", short: "Droplet size", unit: "mm", target: undefined, minMax: 1, value: (i) => outcomeOf(i, "droplet_initial_diameter")?.normalized_value ?? null }
+        : { label: "Airflow speed (cm/s)", short: "Airflow speed", unit: "cm/s", target: flow, minMax: 25, value: (i) => i.flow_velocity_normalized_cm_s };
+
   const plottable = [...ranked, ...earth];
   const points: ChartPoint[] = plottable.flatMap((item) => {
     const m = outcomeOf(item, outcome.field);
-    if (item.flow_velocity_normalized_cm_s === null || !m || m.normalized_value === null) return [];
-    return [{ id: item.run_code, label: item.run_code, detail: item.fuel_material, x: item.flow_velocity_normalized_cm_s, y: m.normalized_value, uncertainty: m.uncertainty, earth: item.is_terrestrial_baseline, highlight: item.rank === 1 }];
+    const x = xCfg.value(item);
+    if (x === null || !m || m.normalized_value === null) return [];
+    // Only the #1 space match is highlighted; the Earth track has its own rank 1 that would overlap.
+    return [{ id: item.run_code, label: item.run_code, detail: item.fuel_material, x, y: m.normalized_value, uncertainty: m.uncertainty, earth: item.is_terrestrial_baseline, highlight: item.rank === 1 && !item.is_terrestrial_baseline }];
   });
   const notPlotted = plottable.length - points.length;
 
@@ -218,13 +245,23 @@ function Results({ data, domain, flow, showAll, onShowAll }: { data: CompareResp
             <Icon name="scatter_plot" size={18} />
             Conditions vs. result
           </div>
-          <h2 className="t-headline-md text-on-surface">Airflow speed vs. {outcome.label.toLowerCase()}</h2>
+          <h2 className="t-headline-md text-on-surface">
+            {xCfg.short} vs. {outcome.label.charAt(0).toLowerCase() + outcome.label.slice(1)}
+          </h2>
         </div>
-        <ScatterChart points={points} xLabel="Airflow speed (cm/s)" yLabel={outcome.label} yUnit={outcome.unit} targetX={flow} minXMax={25} onSelect={openProvenance} />
-        {notPlotted > 0 && (
-          <p className="t-code px-space-xs text-outline">
-            {notPlotted} {notPlotted === 1 ? "run is" : "runs are"} not plotted because the airflow or the result was not recorded. Missing values are never shown as zero.
-          </p>
+        {points.length === 0 ? (
+          <EmptyState icon="query_stats" title="Nothing to plot for this fuel type">
+            The archived {DOMAIN_LABEL[domain].toLowerCase()} runs do not record both {xCfg.short.toLowerCase()} and {outcome.label.toLowerCase()} as numbers, so there is no chart. FLARE never fills missing values with zero. The ranked matches below are still based on the conditions that were recorded.
+          </EmptyState>
+        ) : (
+          <>
+            <ScatterChart points={points} xLabel={xCfg.label} xUnit={xCfg.unit} yLabel={outcome.label} yUnit={outcome.unit} targetX={xCfg.target} minXMax={xCfg.minMax} onSelect={openProvenance} />
+            {notPlotted > 0 && (
+              <p className="t-code px-space-xs text-outline">
+                {notPlotted} {notPlotted === 1 ? "run is" : "runs are"} not plotted because the {xCfg.short.toLowerCase()} or the result was not recorded. Missing values are never shown as zero.
+              </p>
+            )}
+          </>
         )}
       </div>
 
@@ -379,23 +416,25 @@ function MatchCard({ item, outcomeField }: { item: CompareRankedItem; outcomeFie
         <div className="flex flex-col gap-space-md bg-surface-container-lowest/70 p-space-lg">
           <div className="grid grid-cols-1 gap-space-sm sm:grid-cols-3">
             {FEATURES.map((f) => {
-              const b = item.feature_breakdown[f.key] as unknown as Breakdown | undefined;
+              const b = breakdownOf(item, f.bk);
               const measured = b?.status === "measured" && b.record_value !== undefined && b.target !== undefined;
               return (
                 <div key={f.key} className="tile flex flex-col gap-1 p-space-sm">
                   <span className="t-label tracking-wider text-on-surface-variant">{f.label}</span>
-                  {measured ? (
+                  {!b ? (
+                    <span className="t-code text-outline">Not used for this fuel type</span>
+                  ) : measured ? (
                     <>
                       <span className="t-title text-on-surface">
-                        {num(b!.record_value! * f.scale, f.digits)}
-                        <span className="t-code text-outline"> vs your {num(b!.target! * f.scale, f.digits)}</span>
+                        {num(b.record_value! * f.scale, f.digits)}
+                        <span className="t-code text-outline"> vs your {num(b.target! * f.scale, f.digits)}</span>
                       </span>
                       <span className="t-code text-secondary">
-                        {num((b!.raw_delta ?? 0) * f.scale, f.digits)} {f.unit} apart
+                        {num(Math.abs(b.record_value! - b.target!) * f.scale, f.digits)} {f.unit} apart
                       </span>
                     </>
                   ) : (
-                    <NotRecorded reason={b?.missing_reason} className="self-start" />
+                    <NotRecorded reason={b.missing_reason} className="self-start" />
                   )}
                 </div>
               );

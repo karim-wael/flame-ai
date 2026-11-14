@@ -17,6 +17,7 @@ export interface ChartPoint {
 interface Props {
   points: ChartPoint[];
   xLabel: string;
+  xUnit?: string;
   yLabel: string;
   yUnit: string;
   targetX?: number;
@@ -32,11 +33,11 @@ function niceMax(v: number): number {
   if (v <= 0) return 1;
   const pow = Math.pow(10, Math.floor(Math.log10(v)));
   const n = v / pow;
-  const step = n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10;
+  const step = [1, 2, 2.5, 3, 4, 5, 6, 8, 10].find((s) => n <= s) ?? 10;
   return step * pow;
 }
 
-export default function ScatterChart({ points, xLabel, yLabel, yUnit, targetX, minXMax = 10, height = 300, onSelect }: Props) {
+export default function ScatterChart({ points, xLabel, xUnit = "cm/s", yLabel, yUnit, targetX, minXMax = 10, height = 300, onSelect }: Props) {
   const [hover, setHover] = useState<ChartPoint | null>(null);
   const plotW = W - PAD.l - PAD.r;
   const plotH = height - PAD.t - PAD.b;
@@ -80,7 +81,7 @@ export default function ScatterChart({ points, xLabel, yLabel, yUnit, targetX, m
               <line x1={sx(targetX)} x2={sx(targetX)} y1={PAD.t - 4} y2={PAD.t + plotH} stroke="#ff6b35" strokeWidth="2" strokeDasharray="6 4" />
               <rect x={Math.min(Math.max(sx(targetX) - 52, PAD.l), W - PAD.r - 104)} y={6} width={104} height={20} rx={4} fill="#1c1f2a" stroke="#ff6b35" />
               <text x={Math.min(Math.max(sx(targetX), PAD.l + 52), W - PAD.r - 52)} y={20} textAnchor="middle" fill="#ffb59d" fontSize="10" fontWeight="700" fontFamily="var(--font-grotesk)">
-                TARGET: {num(targetX, 1)} cm/s
+                TARGET: {num(targetX, 1)} {xUnit}
               </text>
             </g>
           )}
@@ -135,7 +136,7 @@ export default function ScatterChart({ points, xLabel, yLabel, yUnit, targetX, m
         {hover ? (
           <span className="text-on-surface">
             <strong className="text-secondary">{hover.label}</strong>
-            {hover.detail ? ` · ${hover.detail}` : ""} · {num(hover.x, 1)} cm/s · {num(hover.y, 3)} {yUnit}
+            {hover.detail ? ` · ${hover.detail}` : ""} · {num(hover.x, 1)} {xUnit} · {num(hover.y, 3)} {yUnit}
           </span>
         ) : (
           <span className="text-outline">{points.length ? "Hover a point for details" : "No plottable values"}</span>
