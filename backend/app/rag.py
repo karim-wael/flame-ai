@@ -2,6 +2,8 @@ from typing import Any, Dict, List, Optional
 import os
 import re
 import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
 from sqlalchemy.orm import Session
 
 from .config import GEMINI_API_KEY, HANDOFF_DIR, LLM_MODEL, OPENAI_API_KEY, SCIENTIFIC_DISCLAIMER
@@ -61,6 +63,70 @@ def keyword_overlap_score(query: str, chunk: KnowledgeChunk) -> float:
     ).lower()
     hits = sum(1 for tok in q_tokens if tok in haystack)
     return min(1.0, hits / max(1, len(q_tokens)))
+
+
+# ---------------------------------------------------------------------------
+# Retrieval quality helpers: TF-IDF lexical index, experiment-name boost, junk-chunk penalty
+# ---------------------------------------------------------------------------
+_TFIDF_CACHE: Dict[str, Any] = {}
+
+_TOC_RE = re.compile(r"\.{5,}")
+_REF_RE = re.compile(r"\bet al\b|\b(?:19|20)\d{2}\b|\bpp\.\s*\d|\bVol\.|\bdoi\b", re.IGNORECASE)
+
+
+def _chunk_index_text(ch: KnowledgeChunk) -> str:
+    return " ".join([ch.section_title or "", ch.content_text or "", " ".join(ch.keywords or []), " ".join(ch.fuel_tags or [])])
+
+
+def tfidf_scores(question: str, chunks: List[KnowledgeChunk]) -> Dict[str, float]:
+    """Cosine similarity between the question and every chunk in a cached TF-IDF index."""
+    key = f"{len(chunks)}:{chunks[0].id if chunks else ''}:{chunks[-1].id if chunks else ''}"
+    if _TFIDF_CACHE.get("key") != key:
+        vec = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), sublinear_tf=True, min_df=1, max_df=0.6)
+        matrix = vec.fit_transform([_chunk_index_text(c) for c in chunks])
+        _TFIDF_CACHE.update(key=key, vec=vec, matrix=matrix, ids=[c.id for c in chunks])
+    q = _TFIDF_CACHE["vec"].transform([question])
+    sims = linear_kernel(q, _TFIDF_CACHE["matrix"]).ravel()
+    return dict(zip(_TFIDF_CACHE["ids"], (float(s) for s in sims)))
+
+
+def warm_retrieval_index(db: Session) -> None:
+    """Build the TF-IDF index at startup so the first assistant question is not slow."""
+    chunks = db.query(KnowledgeChunk).order_by(KnowledgeChunk.id).all()
+    if chunks:
+        tfidf_scores("warm up", chunks)
+
+
+def mentioned_investigations(question: str, investigations: List[Investigation]) -> set:
+    """External IDs of investigations named in the question (acronym like 'SAME-R' or id like 'PSI-101')."""
+    aliases: List[tuple] = []
+    for inv in investigations:
+        aliases.append((inv.external_id, inv.external_id, re.IGNORECASE))
+        m = re.search(r"\(([^)]+)\)\s*$", inv.title or "")
+        if m:
+            acr = m.group(1).strip()
+            aliases.append((acr, inv.external_id, 0))  # acronyms are case-sensitive ("SAME" vs the word "same")
+            base = acr.split("-")[0]
+            if base != acr and len(base) >= 4:
+                aliases.append((base, inv.external_id, 0))  # "BASS" -> BASS-II, "SAFFIRE" -> SAFFIRE-I
+    found: set = set()
+    text = question
+    for alias, ext_id, flags in sorted(aliases, key=lambda a: -len(a[0])):  # longest first: SAME-R before SAME
+        pattern = re.compile(rf"(?<![\w-]){re.escape(alias)}(?![\w-])", flags)
+        if pattern.search(text):
+            found.add(ext_id)
+            text = pattern.sub(" ", text)
+    return found
+
+
+def junk_penalty(text: str) -> float:
+    """Multiplier < 1 for table-of-contents and reference-list chunks that carry no findings."""
+    t = text or ""
+    if len(_TOC_RE.findall(t)) >= 2:
+        return 0.25
+    if len(_REF_RE.findall(t)) >= 6:
+        return 0.4
+    return 1.0
 
 
 def _extract_verbatim_quote(text: str, max_words: int = 20) -> str:
@@ -208,7 +274,9 @@ def run_hybrid_assistant_query(db: Session, req: AssistantQueryRequest) -> Dict[
     5. Guardrail-Enforced Synthesis & Verbatim Quote Verification via flare_llm_engine
     """
     query_vec = compute_text_embedding(req.question)
-    all_chunks: List[KnowledgeChunk] = db.query(KnowledgeChunk).all()
+    all_chunks: List[KnowledgeChunk] = db.query(KnowledgeChunk).order_by(KnowledgeChunk.id).all()
+    lexical = tfidf_scores(req.question, all_chunks) if all_chunks else {}
+    named_invs = mentioned_investigations(req.question, db.query(Investigation).all())
 
     scored_chunks: List[Dict[str, Any]] = []
     for ch in all_chunks:
@@ -225,7 +293,12 @@ def run_hybrid_assistant_query(db: Session, req: AssistantQueryRequest) -> Dict[
         inv: Optional[Investigation] = doc.investigation if doc else None
         sem_score = cosine_sim(query_vec, ch.embedding_json or [])
         kw_score = keyword_overlap_score(req.question, ch)
-        hybrid_score = round(0.65 * sem_score + 0.35 * kw_score, 4)
+        tfidf = lexical.get(ch.id, 0.0)
+        # TF-IDF carries most of the signal; the 64-dim vocabulary embedding and raw overlap are weak tie-breakers.
+        hybrid = 0.6 * min(1.0, tfidf * 2.5) + 0.2 * sem_score + 0.2 * kw_score
+        if named_invs and inv is not None:
+            hybrid = hybrid + 0.5 if inv.external_id in named_invs else hybrid * 0.5
+        hybrid_score = round(hybrid * junk_penalty(ch.content_text), 4)
 
         cite_chunk_id = f"{inv.external_id if inv else 'PSI'}:c{ch.id}"
         scored_chunks.append({
@@ -375,7 +448,11 @@ def run_hybrid_assistant_query(db: Session, req: AssistantQueryRequest) -> Dict[
             },
             {
                 "step": "2. Keyword & Coverage Matrix Match (flare_llm_adapter)",
-                "detail": f"Combined semantic (65%) + keyword (35%) hybrid score and selected {len(cov_selected)} coverage/gap matrix cells (COV-*/GAP-*).",
+                "detail": (
+                    f"Combined TF-IDF lexical (60%) + semantic (20%) + keyword (20%) hybrid score"
+                    + (f", boosted investigations named in the question ({', '.join(sorted(named_invs))})" if named_invs else "")
+                    + f", down-ranked table-of-contents/reference chunks, and selected {len(cov_selected)} coverage/gap matrix cells (COV-*/GAP-*)."
+                ),
             },
             {
                 "step": "3. Structured PostgreSQL Query (ExperimentRun + Measurement)",

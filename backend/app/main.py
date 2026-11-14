@@ -28,7 +28,7 @@ from .models import (
     get_db,
     init_db,
 )
-from .rag import run_hybrid_assistant_query
+from .rag import run_hybrid_assistant_query, warm_retrieval_index
 from .schemas import AssistantQueryRequest, CompareRequest, IngestionJobRequest
 from .similarity import run_domain_gated_comparison
 
@@ -40,6 +40,7 @@ async def lifespan(app: FastAPI):
     try:
         if db.query(ExperimentRun).count() < 100:
             run_ingestion_pipeline(db)
+        warm_retrieval_index(db)
     finally:
         db.close()
     yield

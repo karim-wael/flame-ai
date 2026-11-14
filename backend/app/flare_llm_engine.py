@@ -318,7 +318,7 @@ def _call_openai(user_message: str) -> LLMOutput:
                 },
             ],
         }
-        with httpx.Client(timeout=12.0) as client:
+        with httpx.Client(timeout=30.0) as client:
             resp = client.post(
                 "https://api.openai.com/v1/chat/completions",
                 headers={"Authorization": f"Bearer {api_key}"},
@@ -368,7 +368,7 @@ def _call_gemini(user_message: str) -> LLMOutput:
                 "responseMimeType": "application/json",
             },
         }
-        with httpx.Client(timeout=12.0) as client:
+        with httpx.Client(timeout=30.0) as client:
             resp = client.post(url, json=payload)
             resp.raise_for_status()
             parts = resp.json().get("candidates", [{}])[0].get("content", {}).get("parts", [])
