@@ -94,15 +94,6 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex flex-col gap-space-md">
-            <div className="tile p-space-md">
-              <div className="t-label mb-space-xs flex items-center gap-space-xs tracking-wider text-tertiary">
-                <Icon name="warning" size={16} />
-                Prototype Notice
-              </div>
-              <p className="t-code leading-relaxed text-on-surface-variant">
-                Research prototype. Not a certified fire-safety system.
-              </p>
-            </div>
             <div className="t-code flex items-center justify-between px-space-xs text-on-surface-variant">
               <span>{health ? `API v${health.version}` : error ? "API offline" : "Connecting…"}</span>
               <span className={`inline-block h-2 w-2 rounded-full ${error ? "bg-error" : "animate-pulse bg-secondary"}`} />

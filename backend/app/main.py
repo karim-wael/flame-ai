@@ -4,8 +4,8 @@ from typing import Any, Dict, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import or_
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func, or_
+from sqlalchemy.orm import Session, selectinload
 
 from .config import (
     COMBUSTION_DOMAINS,
@@ -175,7 +175,11 @@ def get_health(db: Session = Depends(get_db)):
 
 @app.get("/api/sources")
 def list_sources(db: Session = Depends(get_db)):
-    sources = db.query(DataSource).all()
+    sources = (
+        db.query(DataSource)
+        .options(selectinload(DataSource.field_mappings), selectinload(DataSource.investigations))
+        .all()
+    )
     return [
         {
             "id": s.id,
@@ -232,7 +236,17 @@ def list_investigations(
             )
         )
 
-    invs = q.all()
+    invs = q.options(selectinload(Investigation.source)).all()
+    run_counts = dict(
+        db.query(ExperimentRun.investigation_id, func.count(ExperimentRun.id))
+        .group_by(ExperimentRun.investigation_id)
+        .all()
+    )
+    file_counts = dict(
+        db.query(SourceFile.investigation_id, func.count(SourceFile.id))
+        .group_by(SourceFile.investigation_id)
+        .all()
+    )
     return [
         {
             "id": inv.id,
@@ -251,8 +265,8 @@ def list_investigations(
             "end_date": inv.end_date,
             "source_url": inv.source_url,
             "source_metadata": inv.source_metadata,
-            "run_count": len(inv.experiment_runs),
-            "file_count": len(inv.source_files),
+            "run_count": run_counts.get(inv.id, 0),
+            "file_count": file_counts.get(inv.id, 0),
         }
         for inv in invs
     ]
@@ -263,10 +277,10 @@ def get_investigation_detail(investigation_id: str, db: Session = Depends(get_db
     inv = (
         db.query(Investigation)
         .options(
-            joinedload(Investigation.source),
-            joinedload(Investigation.source_files),
-            joinedload(Investigation.experiment_runs).joinedload(ExperimentRun.measurements),
-            joinedload(Investigation.experiment_runs).joinedload(ExperimentRun.derived_results),
+            selectinload(Investigation.source),
+            selectinload(Investigation.source_files),
+            selectinload(Investigation.experiment_runs).selectinload(ExperimentRun.measurements),
+            selectinload(Investigation.experiment_runs).selectinload(ExperimentRun.derived_results),
         )
         .filter(or_(Investigation.id == investigation_id, Investigation.external_id == investigation_id))
         .first()
@@ -361,7 +375,11 @@ def list_experiments(
     if not include_baseline:
         q = q.filter(ExperimentRun.is_terrestrial_baseline == False)  # noqa: E712
 
-    runs = q.all()
+    runs = q.options(
+        selectinload(ExperimentRun.investigation).selectinload(Investigation.source),
+        selectinload(ExperimentRun.measurements),
+        selectinload(ExperimentRun.derived_results),
+    ).all()
     return [serialize_run(r) for r in runs]
 
 

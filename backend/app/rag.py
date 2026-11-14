@@ -4,7 +4,7 @@ import re
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from .config import GEMINI_API_KEY, HANDOFF_DIR, LLM_MODEL, OPENAI_API_KEY, SCIENTIFIC_DISCLAIMER
 from .flare_llm_adapter import load_coverage_chunks, select_coverage_chunks
@@ -274,9 +274,19 @@ def run_hybrid_assistant_query(db: Session, req: AssistantQueryRequest) -> Dict[
     5. Guardrail-Enforced Synthesis & Verbatim Quote Verification via flare_llm_engine
     """
     query_vec = compute_text_embedding(req.question)
-    all_chunks: List[KnowledgeChunk] = db.query(KnowledgeChunk).order_by(KnowledgeChunk.id).all()
+    all_chunks: List[KnowledgeChunk] = (
+        db.query(KnowledgeChunk)
+        .options(
+            selectinload(KnowledgeChunk.document).selectinload(KnowledgeDocument.investigation),
+            selectinload(KnowledgeChunk.document).selectinload(KnowledgeDocument.source),
+        )
+        .order_by(KnowledgeChunk.id)
+        .all()
+    )
     lexical = tfidf_scores(req.question, all_chunks) if all_chunks else {}
-    named_invs = mentioned_investigations(req.question, db.query(Investigation).all())
+    investigations = db.query(Investigation).all()
+    inv_ext_by_id = {inv.id: inv.external_id for inv in investigations}
+    named_invs = mentioned_investigations(req.question, investigations)
 
     scored_chunks: List[Dict[str, Any]] = []
     for ch in all_chunks:
@@ -349,35 +359,67 @@ def run_hybrid_assistant_query(db: Session, req: AssistantQueryRequest) -> Dict[
     for cov_c in cov_selected:
         engine_chunks.append({k: v for k, v in cov_c.items() if not k.startswith("_")})
 
-    # Step 4: Structured SQL Query over ExperimentRun & Measurement
+    # Step 4: Structured SQL Query over ExperimentRun & Measurement (lightweight column scoring first)
     matched_inv_ids = {c["investigation_id"] for c in top_chunks if c.get("investigation_id")}
     matched_domains = {c["combustion_domain"] for c in top_chunks}
 
-    sql_query = db.query(ExperimentRun)
+    sql_query = db.query(
+        ExperimentRun.id,
+        ExperimentRun.investigation_id,
+        ExperimentRun.combustion_domain,
+        ExperimentRun.fuel_material,
+    )
     if req.combustion_domain:
         sql_query = sql_query.filter(ExperimentRun.combustion_domain == req.combustion_domain)
     if req.gravity_regime:
         sql_query = sql_query.filter(ExperimentRun.gravity_regime == req.gravity_regime)
 
-    candidate_runs: List[ExperimentRun] = sql_query.all()
-
-    scored_runs: List[Dict[str, Any]] = []
     q_lower = req.question.lower()
-    for r in candidate_runs:
-        if req.fuel_filter and req.fuel_filter.lower() not in r.fuel_material.lower():
+    q_tokens = [tok for tok in q_lower.split() if len(tok) > 3]
+    fuel_filter_lower = req.fuel_filter.lower() if req.fuel_filter else None
+
+    scored_ids: List[tuple] = []
+    for run_id, inv_id, domain, fuel_material in sql_query.all():
+        fuel_lower = (fuel_material or "").lower()
+        if fuel_filter_lower and fuel_filter_lower not in fuel_lower:
+            continue
+        relevance = 0.0
+        if inv_id in matched_inv_ids:
+            relevance += 0.55
+        if domain in matched_domains:
+            relevance += 0.25
+        if any(tok in fuel_lower for tok in q_tokens):
+            relevance += 0.30
+        ext_id = inv_ext_by_id.get(inv_id)
+        if ext_id and ext_id.lower() in q_lower:
+            relevance += 0.45
+        scored_ids.append((round(relevance, 3), run_id))
+
+    scored_ids.sort(key=lambda x: x[0], reverse=True)
+    top_scored = scored_ids[: req.top_k_experiments]
+    score_by_id = {rid: rel for rel, rid in top_scored}
+    ordered_ids = [rid for _, rid in top_scored]
+
+    top_db_runs = (
+        db.query(ExperimentRun)
+        .options(
+            selectinload(ExperimentRun.investigation),
+            selectinload(ExperimentRun.measurements),
+        )
+        .filter(ExperimentRun.id.in_(ordered_ids))
+        .all()
+        if ordered_ids
+        else []
+    )
+    runs_by_id = {r.id: r for r in top_db_runs}
+
+    top_runs: List[Dict[str, Any]] = []
+    for rid in ordered_ids:
+        r = runs_by_id.get(rid)
+        if not r:
             continue
         inv = r.investigation
-        relevance = 0.0
-        if r.investigation_id in matched_inv_ids:
-            relevance += 0.55
-        if r.combustion_domain in matched_domains:
-            relevance += 0.25
-        if any(tok in r.fuel_material.lower() for tok in q_lower.split() if len(tok) > 3):
-            relevance += 0.30
-        if inv and inv.external_id.lower() in q_lower:
-            relevance += 0.45
-
-        scored_runs.append({
+        top_runs.append({
             "run_id": r.id,
             "run_code": r.run_code,
             "investigation_id": inv.id if inv else None,
@@ -394,7 +436,7 @@ def run_hybrid_assistant_query(db: Session, req: AssistantQueryRequest) -> Dict[
             "pressure_normalized_kpa": r.pressure_normalized_kpa,
             "flow_velocity_normalized_cm_s": r.flow_velocity_normalized_cm_s,
             "flow_velocity_missing_reason": r.flow_velocity_missing_reason,
-            "sql_relevance_score": round(relevance, 3),
+            "sql_relevance_score": score_by_id.get(rid, 0.0),
             "measurements": [
                 {
                     "id": m.id,
@@ -411,14 +453,11 @@ def run_hybrid_assistant_query(db: Session, req: AssistantQueryRequest) -> Dict[
             ],
         })
 
-    scored_runs.sort(key=lambda x: x["sql_relevance_score"], reverse=True)
-    top_runs = scored_runs[: req.top_k_experiments]
-
     # Step 5: Call flare_llm_engine (Gemini or OpenAI), with deterministic guardrail fallback if offline
     flare_resp: Optional[Dict[str, Any]] = None
     used_external_llm = False
 
-    if GEMINI_API_KEY:
+    if GEMINI_API_KEY and not GEMINI_API_KEY.startswith("AQ."):
         os.environ.setdefault("GEMINI_API_KEY", GEMINI_API_KEY)
         candidate = generate_flare_response(req.question, engine_chunks, provider="gemini", max_retries=0)
         if "llm_call_failed" not in candidate.get("guardrail_flags", []):

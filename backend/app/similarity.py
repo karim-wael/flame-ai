@@ -3,10 +3,10 @@ from functools import lru_cache
 from typing import Any, Dict, List
 
 import pandas as pd
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, selectinload
 
 from .config import HANDOFF_DIR, RANKING_DIR, SCIENTIFIC_DISCLAIMER
-from .models import ExperimentRun
+from .models import ExperimentRun, Investigation
 from .schemas import CompareRequest
 
 # Add flare_ranking directory to Python path so adapter.py and ranking.py can be imported cleanly
@@ -178,7 +178,10 @@ def run_domain_gated_comparison(db: Session, req: CompareRequest) -> Dict[str, A
 
     db_runs = (
         db.query(ExperimentRun)
-        .options(joinedload(ExperimentRun.measurements), joinedload(ExperimentRun.investigation))
+        .options(
+            selectinload(ExperimentRun.measurements),
+            selectinload(ExperimentRun.investigation).selectinload(Investigation.source_files),
+        )
         .filter(ExperimentRun.run_code.in_(all_codes))
         .all()
         if all_codes
@@ -199,7 +202,7 @@ def run_domain_gated_comparison(db: Session, req: CompareRequest) -> Dict[str, A
     # Sample excluded incompatible-domain runs from DB for the Domain Gate Audit panel
     incompatible_runs = (
         db.query(ExperimentRun)
-        .options(joinedload(ExperimentRun.investigation))
+        .options(selectinload(ExperimentRun.investigation))
         .filter(ExperimentRun.combustion_domain != req.target_domain)
         .limit(12)
         .all()

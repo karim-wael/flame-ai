@@ -34,23 +34,37 @@ export const API_BASE = getApiBase();
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const base = getApiBase();
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
-  let res: Response;
-  try {
-    res = await fetch(`${base}${cleanPath}`, init);
-  } catch {
-    throw new Error(`Can't reach the FLARE API at ${base}. Check that the backend is running.`);
-  }
-  if (!res.ok) {
-    let detail = "";
+  const isGet = !init?.method || init.method.toUpperCase() === "GET";
+  const maxAttempts = isGet ? 2 : 1;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    let res: Response;
     try {
-      const body = await res.json();
-      detail = typeof body?.detail === "string" ? body.detail : "";
+      res = await fetch(`${base}${cleanPath}`, init);
     } catch {
-      /* non-JSON error body */
+      if (attempt + 1 < maxAttempts) {
+        await new Promise((r) => setTimeout(r, 1500));
+        continue;
+      }
+      throw new Error(`Can't reach the FLARE API at ${base}. The server may be waking up—please click Try again.`);
     }
-    throw new Error(detail || `The FLARE API returned an error (${res.status}).`);
+    if (res.status >= 502 && res.status <= 504 && attempt + 1 < maxAttempts) {
+      await new Promise((r) => setTimeout(r, 1500));
+      continue;
+    }
+    if (!res.ok) {
+      let detail = "";
+      try {
+        const body = await res.json();
+        detail = typeof body?.detail === "string" ? body.detail : "";
+      } catch {
+        /* non-JSON error body */
+      }
+      throw new Error(detail || `The FLARE API returned an error (${res.status}).`);
+    }
+    return res.json() as Promise<T>;
   }
-  return res.json() as Promise<T>;
+  throw new Error(`Can't reach the FLARE API at ${base}.`);
 }
 
 function post<T>(path: string, body: unknown): Promise<T> {
