@@ -540,3 +540,8 @@ def list_knowledge_chunks(
 @app.post("/api/assistant/query")
 def query_research_assistant(req: AssistantQueryRequest, db: Session = Depends(get_db)):
     return run_hybrid_assistant_query(db, req)
+
+
+@app.post("/api/llm/ask")
+def query_flare_llm_engine(req: AssistantQueryRequest, db: Session = Depends(get_db)):
+    return run_hybrid_assistant_query(db, req)["flare_llm_response"]

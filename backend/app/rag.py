@@ -1,12 +1,37 @@
 from typing import Any, Dict, List, Optional
-import httpx
+import os
+import re
 import numpy as np
 from sqlalchemy.orm import Session
 
-from .config import GEMINI_API_KEY, LLM_MODEL, OPENAI_API_KEY, SCIENTIFIC_DISCLAIMER
+from .config import GEMINI_API_KEY, HANDOFF_DIR, LLM_MODEL, OPENAI_API_KEY, SCIENTIFIC_DISCLAIMER
+from .flare_llm_adapter import load_coverage_chunks, select_coverage_chunks
+from .flare_llm_engine import (
+    DISCLAIMER as FLARE_LLM_DISCLAIMER,
+    FlareResponse,
+    LLMCitation,
+    LLMOutput,
+    _PARTIAL_G,
+    _verify_and_enrich,
+    generate_flare_response,
+)
 from .ingestion import compute_text_embedding
 from .models import ExperimentRun, Investigation, KnowledgeChunk, KnowledgeDocument
 from .schemas import AssistantQueryRequest
+
+
+_COVERAGE_CACHE: Optional[List[Dict[str, Any]]] = None
+
+
+def get_coverage_chunks() -> List[Dict[str, Any]]:
+    global _COVERAGE_CACHE
+    if _COVERAGE_CACHE is None:
+        cov_path = HANDOFF_DIR / "processed" / "coverage.csv"
+        if cov_path.exists():
+            _COVERAGE_CACHE = load_coverage_chunks(cov_path)
+        else:
+            _COVERAGE_CACHE = []
+    return _COVERAGE_CACHE
 
 
 def cosine_sim(vec_a: List[float], vec_b: List[float]) -> float:
@@ -38,108 +63,118 @@ def keyword_overlap_score(query: str, chunk: KnowledgeChunk) -> float:
     return min(1.0, hits / max(1, len(q_tokens)))
 
 
-def call_external_llm_if_available(
+def _extract_verbatim_quote(text: str, max_words: int = 20) -> str:
+    words = text.strip().split()
+    return " ".join(words[:max_words])
+
+
+def build_deterministic_flare_output(
     question: str,
-    evidence_chunks: List[Dict[str, Any]],
+    engine_chunks: List[Dict[str, Any]],
     sql_runs: List[Dict[str, Any]],
-) -> Optional[str]:
+) -> Dict[str, Any]:
     """
-    Attempt to call Gemini or OpenAI API with strict source-grounding instructions.
-    Returns None if no valid external key or if the endpoint is unreachable, triggering deterministic synthesis.
+    Build a guardrail-compliant FlareResponse (using Farah's LLMOutput + _verify_and_enrich)
+    when external LLM APIs are offline or unreachable.
     """
-    evidence_text = "\n\n".join(
-        f"[{c['external_investigation_id']} | DOI: {c['doi'] or 'Archive-Link'}] ({c['section_title']}): {c['content_text']}"
-        for c in evidence_chunks
-    )
-    runs_text = "\n".join(
-        f"- Run {r['run_code']} ({r['external_investigation_id']}, domain={r['combustion_domain']}, gravity={r['gravity_regime']}, "
-        f"fuel={r['fuel_material']}, O2={r['oxygen_fraction']}, P={r['pressure_normalized_kpa']} kPa, "
-        f"V_air={r['flow_velocity_normalized_cm_s']} cm/s): "
-        + ", ".join(
-            f"{m['canonical_field']}={m['normalized_value']} {m['normalized_unit']}"
-            if m["value_status"] == "measured"
-            else f"{m['canonical_field']}=MISSING({m['missing_reason']})"
-            for m in r["measurements"]
+    is_partial_g = bool(_PARTIAL_G.search(question))
+    citations_in: List[LLMCitation] = []
+    answer_parts: List[str] = []
+
+    if is_partial_g:
+        cov_ids = [c["source_id"] for c in engine_chunks if str(c["source_id"]).startswith(("GAP-", "COV-"))]
+        cov_ref = f" [{cov_ids[0]}]" if cov_ids else ""
+        answer_parts.append(
+            f"Partial-gravity combustion (Lunar ~0.16 g, Martian ~0.38 g, or intermediate gravity between 0 g and 1 g) "
+            f"is an open research gap with no validated NASA PSI partial-gravity experiment records in this archive{cov_ref}. "
+            f"FLARE AI treats microgravity (0 g) and normal gravity (1 g) as bounding regimes rather than interpolating between them."
         )
-        for r in sql_runs
+
+    for ch in engine_chunks[:4]:
+        cid = str(ch["source_id"])
+        quote = _extract_verbatim_quote(ch["text"], max_words=20)
+        if quote:
+            citations_in.append(LLMCitation(source_id=cid, quote=quote))
+        snippet = ch["text"].strip()
+        if len(snippet) > 220:
+            snippet = snippet[:217].rsplit(" ", 1)[0] + "..."
+        answer_parts.append(f"{ch.get('title') or cid} reports: {snippet} [{cid}].")
+
+    missing_info: List[str] = []
+    if is_partial_g:
+        missing_info.append("Validated partial-gravity (Lunar 0.16 g / Martian 0.38 g) combustion test runs in NASA PSI.")
+    for r in sql_runs[:3]:
+        for m in r["measurements"]:
+            if m["value_status"] != "measured":
+                missing_info.append(
+                    f"Run {r['run_code']} ({r['external_investigation_id']}): {m['canonical_field']} is {m['missing_reason']}."
+                )
+    if not missing_info:
+        missing_info.append("Direct target-condition match for unmeasured environmental parameters outside the retrieved PSI runs.")
+
+    uncertainty = (
+        "Retrieved NASA PSI records bound the query within their tested microgravity (0 g) and ground baseline (1 g) conditions; "
+        "SPICE, SAME, and SAME-R do not report ambient oxygen or pressure in the archive, and terrestrial 1 g behavior does not transfer directly to microgravity."
     )
+    if is_partial_g:
+        uncertainty = (
+            "No partial-gravity (0.16 g Lunar or 0.38 g Martian) data exist in the archive (see GAP cells); "
+            + uncertainty
+        )
 
-    system_prompt = (
-        "You are the FLARE AI Scientific Research Assistant for the NASA Space Apps Challenge 2026 (Flame in Freefall). "
-        "Synthesize an explanation answering the user's question strictly using the provided NASA PSI "
-        "evidence chunks and PostgreSQL experiment records. Cite every claim with [PSI-XX, DOI]. "
-        "Explicitly distinguish microgravity (0g) behavior from normal-gravity (1g) baseline data, respect combustion domain "
-        "boundaries (solid vs gas vs liquid_droplet vs aerosol_smoke), and mention any missing measurement flags."
+    out = LLMOutput(
+        status="answered" if engine_chunks else "insufficient_context",
+        answer_text=" ".join(answer_parts),
+        uncertainty_statement=uncertainty,
+        missing_information=missing_info[:5],
+        partial_gravity_gap_noted=is_partial_g,
+        citations=citations_in,
     )
-    user_prompt = f"Question: {question}\n\nPublished Evidence Chunks:\n{evidence_text}\n\nStructured SQL Experiments:\n{runs_text}"
-
-    # Try Gemini API if key is set and looks like a standard AIza key or Vertex key
-    if GEMINI_API_KEY:
-        try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{LLM_MODEL}:generateContent?key={GEMINI_API_KEY}"
-            payload = {
-                "systemInstruction": {"parts": [{"text": system_prompt}]},
-                "contents": [{"parts": [{"text": user_prompt}]}],
-                "generationConfig": {"temperature": 0.15, "maxOutputTokens": 700},
-            }
-            with httpx.Client(timeout=6.0) as client:
-                resp = client.post(url, json=payload)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
-                    if parts and parts[0].get("text"):
-                        return parts[0]["text"].strip()
-        except Exception:
-            pass
-
-    if OPENAI_API_KEY:
-        try:
-            url = "https://api.openai.com/v1/chat/completions"
-            headers = {"Authorization": f"Bearer {OPENAI_API_KEY}"}
-            payload = {
-                "model": "gpt-4o-mini",
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                "temperature": 0.15,
-            }
-            with httpx.Client(timeout=6.0) as client:
-                resp = client.post(url, headers=headers, json=payload)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    return data["choices"][0]["message"]["content"].strip()
-        except Exception:
-            pass
-
-    return None
+    verified_citations, flags = _verify_and_enrich(out, engine_chunks)
+    return FlareResponse(
+        status=out.status,
+        answer_text=out.answer_text,
+        uncertainty_statement=out.uncertainty_statement,
+        missing_information=out.missing_information,
+        partial_gravity_gap_noted=out.partial_gravity_gap_noted,
+        citations=verified_citations,
+        guardrail_flags=flags,
+        disclaimer=FLARE_LLM_DISCLAIMER,
+        model="deterministic-guardrail-synthesizer",
+    ).model_dump()
 
 
-def build_deterministic_grounded_synthesis(
-    question: str,
-    evidence_chunks: List[Dict[str, Any]],
+def format_flare_response_as_markdown(
+    flare_resp: Dict[str, Any],
     sql_runs: List[Dict[str, Any]],
 ) -> str:
-    """
-    Build a rigorous, citation-grounded scientific interpretation directly from the retrieved
-    Knowledge Base chunks and PostgreSQL structured experiment runs.
-    """
     lines: List[str] = []
-    lines.append("### Source-Grounded Scientific Synthesis (Generated Interpretation)")
-    lines.append(
-        f"Based on hybrid retrieval across **{len(evidence_chunks)} peer-reviewed / repository evidence chunks** and "
-        f"**{len(sql_runs)} structured PostgreSQL experiment records**, the key mechanisms addressing your query are:"
-    )
-
-    for idx, ch in enumerate(evidence_chunks[:3], start=1):
-        cite = f"[{ch['external_investigation_id']}" + (f" | DOI: {ch['doi']}]" if ch.get("doi") else " | Archive Link]")
+    lines.append("### Source-Grounded Scientific Synthesis")
+    if flare_resp.get("partial_gravity_gap_noted"):
         lines.append(
-            f"{idx}. **{ch['section_title']} ({ch['combustion_domain']} / {ch['gravity_regime']})** {cite}: "
-            f"{ch['content_text']}"
+            "> **Partial-Gravity Guardrail (G2):** Partial-gravity combustion (Lunar ~0.16 g / Martian ~0.38 g) "
+            "is an open gap in the NASA PSI archive. 0 g and 1 g records below serve only as bounding regimes.\n"
         )
+    lines.append(flare_resp.get("answer_text", ""))
+
+    if flare_resp.get("uncertainty_statement"):
+        lines.append(f"\n### Uncertainty & Condition Mismatches\n{flare_resp['uncertainty_statement']}")
+
+    missing = flare_resp.get("missing_information") or []
+    if missing:
+        lines.append("\n### Missing Information & Archive Gaps")
+        for item in missing:
+            lines.append(f"- {item}")
+
+    cits = flare_resp.get("citations") or []
+    if cits:
+        lines.append("\n### Verbatim Source Citations")
+        for c in cits:
+            badge = "Verified verbatim" if c.get("verified") else "Unverified excerpt"
+            lines.append(f'- **`[{c["source_id"]}]`** (*{badge}*): "{c["quote"]}"')
 
     if sql_runs:
-        lines.append("\n### Quantitative Evidence from Structured Experiment Runs (PostgreSQL)")
+        lines.append("\n### Quantitative Evidence from Structured Experiment Runs")
         for r in sql_runs[:4]:
             meas_parts = []
             for m in r["measurements"]:
@@ -160,23 +195,17 @@ def build_deterministic_grounded_synthesis(
                 f"$V_{{\\text{{air}}}} = \\text{{{flow_str}}}$): {meas_summary}."
             )
 
-    lines.append(
-        "\n### Domain & Gravity Guardrail Note\n"
-        "- Microgravity ($0g$) transport is governed by molecular diffusion and low-velocity spacecraft ventilation "
-        "($1\\text{--}20\\text{ cm/s}$), whereas terrestrial ($1g$) FSRI baseline measurements involve buoyant plume "
-        "convection ($45\\text{--}55\\text{ cm/s}$) and are isolated from $0g$ rankings."
-    )
     return "\n".join(lines)
 
 
 def run_hybrid_assistant_query(db: Session, req: AssistantQueryRequest) -> Dict[str, Any]:
     """
-    Execute the Hybrid Knowledge Architecture Retrieval Pipeline:
+    Execute the Hybrid Knowledge Architecture Retrieval Pipeline + Farah's LLM & Guardrail Engine:
     1. Semantic Vector Search (64-dim cosine similarity over KnowledgeChunk.embedding_json)
     2. Keyword Lexical Matching (scientific terms, fuels, investigation IDs)
-    3. Structured SQL Query over PostgreSQL/DB (ExperimentRun + Measurement + Investigation)
-    4. Domain & Gravity Regime Validation
-    5. Source-Grounded Synthesis with strict separation between Published Evidence & Generated Interpretation
+    3. Coverage Matrix Selection (COV-* / GAP-* cells from processed/coverage.csv via flare_llm_adapter)
+    4. Structured SQL Query over ExperimentRun + Measurement + Investigation
+    5. Guardrail-Enforced Synthesis & Verbatim Quote Verification via flare_llm_engine
     """
     query_vec = compute_text_embedding(req.question)
     all_chunks: List[KnowledgeChunk] = db.query(KnowledgeChunk).all()
@@ -198,8 +227,10 @@ def run_hybrid_assistant_query(db: Session, req: AssistantQueryRequest) -> Dict[
         kw_score = keyword_overlap_score(req.question, ch)
         hybrid_score = round(0.65 * sem_score + 0.35 * kw_score, 4)
 
+        cite_chunk_id = f"{inv.external_id if inv else 'PSI'}:c{ch.id}"
         scored_chunks.append({
             "chunk_id": ch.id,
+            "cite_id": cite_chunk_id,
             "document_id": doc.id if doc else None,
             "document_title": doc.title if doc else "",
             "doc_type": doc.doc_type if doc else "pdf_report",
@@ -224,7 +255,28 @@ def run_hybrid_assistant_query(db: Session, req: AssistantQueryRequest) -> Dict[
     scored_chunks.sort(key=lambda x: x["hybrid_score"], reverse=True)
     top_chunks = scored_chunks[: req.top_k_chunks]
 
-    # Step 3: Structured SQL Query over ExperimentRun & Measurement
+    # Step 3: Build engine chunks in the shape flare_llm_engine.generate_flare_response expects
+    engine_chunks: List[Dict[str, Any]] = [
+        {
+            "source_id": c["cite_id"],
+            "title": f"{c['document_title']} - {c['section_title']}" if c.get("section_title") else c["document_title"],
+            "text": c["content_text"],
+            "url": f"https://doi.org/{c['doi']}" if c.get("doi") else (c.get("source_url") or None),
+            "investigation": c["external_investigation_id"],
+            "doi": c.get("doi"),
+            "page_start": None,
+            "page_end": None,
+            "section": c.get("section_title"),
+        }
+        for c in top_chunks
+    ]
+
+    # Add coverage matrix cells (COV-* / GAP-*) when query touches partial gravity or gaps
+    cov_selected = select_coverage_chunks(req.question, get_coverage_chunks())
+    for cov_c in cov_selected:
+        engine_chunks.append({k: v for k, v in cov_c.items() if not k.startswith("_")})
+
+    # Step 4: Structured SQL Query over ExperimentRun & Measurement
     matched_inv_ids = {c["investigation_id"] for c in top_chunks if c.get("investigation_id")}
     matched_domains = {c["combustion_domain"] for c in top_chunks}
 
@@ -289,11 +341,29 @@ def run_hybrid_assistant_query(db: Session, req: AssistantQueryRequest) -> Dict[
     scored_runs.sort(key=lambda x: x["sql_relevance_score"], reverse=True)
     top_runs = scored_runs[: req.top_k_experiments]
 
-    # Step 4: LLM Synthesis with Deterministic Citation-Grounded Fallback
-    llm_text = call_external_llm_if_available(req.question, top_chunks, top_runs)
-    synthesis_mode = "external_llm_grounded" if llm_text else "deterministic_citation_grounded_engine"
-    if not llm_text:
-        llm_text = build_deterministic_grounded_synthesis(req.question, top_chunks, top_runs)
+    # Step 5: Call flare_llm_engine (Gemini or OpenAI), with deterministic guardrail fallback if offline
+    flare_resp: Optional[Dict[str, Any]] = None
+    used_external_llm = False
+
+    if GEMINI_API_KEY:
+        os.environ.setdefault("GEMINI_API_KEY", GEMINI_API_KEY)
+        candidate = generate_flare_response(req.question, engine_chunks, provider="gemini", max_retries=0)
+        if "llm_call_failed" not in candidate.get("guardrail_flags", []):
+            flare_resp = candidate
+            used_external_llm = True
+
+    if flare_resp is None and OPENAI_API_KEY:
+        os.environ.setdefault("OPENAI_API_KEY", OPENAI_API_KEY)
+        candidate = generate_flare_response(req.question, engine_chunks, provider="openai", max_retries=0)
+        if "llm_call_failed" not in candidate.get("guardrail_flags", []):
+            flare_resp = candidate
+            used_external_llm = True
+
+    if flare_resp is None:
+        flare_resp = build_deterministic_flare_output(req.question, engine_chunks, top_runs)
+
+    synthesis_mode = "external_llm_grounded" if used_external_llm else "deterministic_citation_grounded_engine"
+    llm_markdown = format_flare_response_as_markdown(flare_resp, top_runs)
 
     return {
         "question": req.question,
@@ -304,24 +374,31 @@ def run_hybrid_assistant_query(db: Session, req: AssistantQueryRequest) -> Dict[
                 "detail": f"Evaluated {len(all_chunks)} embedded scientific document chunks; top semantic score = {top_chunks[0]['semantic_score'] if top_chunks else 0.0}.",
             },
             {
-                "step": "2. Keyword & Metadata Lexical Match",
-                "detail": f"Combined semantic (65%) + keyword (35%) hybrid score across section titles, fuel tags, and DOIs.",
+                "step": "2. Keyword & Coverage Matrix Match (flare_llm_adapter)",
+                "detail": f"Combined semantic (65%) + keyword (35%) hybrid score and selected {len(cov_selected)} coverage/gap matrix cells (COV-*/GAP-*).",
             },
             {
                 "step": "3. Structured PostgreSQL Query (ExperimentRun + Measurement)",
                 "detail": f"Retrieved {len(top_runs)} matching experiment runs preserving original/normalized units and explicit missing_reason flags.",
             },
             {
-                "step": "4. Scientific Guardrails & Provenance Separation",
-                "detail": "Published repository facts and structured measurements are strictly separated from the generated interpretation below.",
+                "step": "4. Scientific Guardrails & Verbatim Quote Verification (flare_llm_engine)",
+                "detail": f"Validated response against G1-G7 and D1-D6 guardrails; verified {sum(1 for c in flare_resp.get('citations', []) if c.get('verified'))} verbatim quote citations.",
             },
         ],
         "published_scientific_evidence": top_chunks,
         "structured_sql_experiments": top_runs,
+        "flare_llm_response": flare_resp,
         "generated_interpretation": {
             "label": "AI-Synthesized Scientific Interpretation (Derived from Retrieved Sources — Verify Against Primary DOIs)",
             "synthesis_mode": synthesis_mode,
-            "markdown_content": llm_text,
+            "markdown_content": llm_markdown,
+            "status": flare_resp.get("status"),
+            "answer_text": flare_resp.get("answer_text"),
+            "uncertainty_statement": flare_resp.get("uncertainty_statement"),
+            "missing_information": flare_resp.get("missing_information"),
+            "partial_gravity_gap_noted": flare_resp.get("partial_gravity_gap_noted"),
+            "guardrail_flags": flare_resp.get("guardrail_flags"),
             "citations": [
                 {
                     "external_id": c["external_investigation_id"],
@@ -332,5 +409,6 @@ def run_hybrid_assistant_query(db: Session, req: AssistantQueryRequest) -> Dict[
                 }
                 for c in top_chunks
             ],
+            "verified_citations": flare_resp.get("citations", []),
         },
     }
