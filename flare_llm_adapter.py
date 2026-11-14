@@ -125,3 +125,4 @@ if __name__ == "__main__":
         "Can you tell me what fire does on the Moon?",
     ]:
         print(json.dumps(answer(q, corpus, coverage, provider="gemini"), indent=2))
+
