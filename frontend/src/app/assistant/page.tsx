@@ -11,7 +11,7 @@ import { AssistantResponse } from "@/lib/types";
 
 const SUGGESTIONS = [
   { icon: "bolt", text: "Why does flame spread behave differently in microgravity?" },
-  { icon: "water_drop", text: "How do liquid droplets burn and extinguish in FLEX vs the JAXA Kibo experiment?" },
+  { icon: "water_drop", text: "How do liquid droplets burn and extinguish in FLEX (PSI-69)?" },
   { icon: "blur_on", text: "How do smoke particle sizes in SAME and SAME-R affect spacecraft fire detection?" },
   { icon: "air", text: "How does co-flow velocity affect soot smoke points in SPICE?" },
   { icon: "public", text: "Why must Earth-based cone calorimeter data be kept separate from microgravity results?" },

@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import or_
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from .config import (
     COMBUSTION_DOMAINS,
@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
     init_db()
     db = SessionLocal()
     try:
-        if db.query(Investigation).count() == 0:
+        if db.query(ExperimentRun).count() < 100:
             run_ingestion_pipeline(db)
     finally:
         db.close()
@@ -250,6 +250,12 @@ def list_investigations(
 def get_investigation_detail(investigation_id: str, db: Session = Depends(get_db)):
     inv = (
         db.query(Investigation)
+        .options(
+            joinedload(Investigation.source),
+            joinedload(Investigation.source_files),
+            joinedload(Investigation.experiment_runs).joinedload(ExperimentRun.measurements),
+            joinedload(Investigation.experiment_runs).joinedload(ExperimentRun.derived_results),
+        )
         .filter(or_(Investigation.id == investigation_id, Investigation.external_id == investigation_id))
         .first()
     )

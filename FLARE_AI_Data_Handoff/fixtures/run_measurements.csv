@@ -1,0 +1,255 @@
+run_id,variable,value_num,value_text,unit,missing_reason,source_column
+PSI-69:FLEX-007,flex_identifier,,20CAL13,,,FLEX Identifier
+PSI-69:FLEX-007,n2_initial_mole_fraction,0.79,0.79,mole fraction,,N initial ambient composition; mole fraction
+PSI-69:FLEX-007,co_initial_mole_fraction,0,0,mole fraction,,CO initial ambient composition; mole fraction
+PSI-69:FLEX-007,he_initial_mole_fraction,0,0,mole fraction,,He initial ambient composition; mole fraction
+PSI-69:FLEX-007,droplet_initial_diameter,1.87,1.87,mm,,Droplet initial diameter; mm
+PSI-69:FLEX-007,flame_extinction_diameter,,,mm,not_reported,Visible flame extinction diameter; mm
+PSI-69:FLEX-007,burning_rate,,0.67,,unavailable_in_source,Burning rate; mm
+PSI-69:FLEX-007,burn_time,5.3,5.3,s,,Burn time; s
+PSI-69:FLEX-007,test_end,,Disruption,,,Test end
+PSI-69:FLEX-019,flex_identifier,,196F001,,,FLEX Identifier
+PSI-69:FLEX-019,n2_initial_mole_fraction,0.66,0.66,mole fraction,,N initial ambient composition; mole fraction
+PSI-69:FLEX-019,co_initial_mole_fraction,0,0,mole fraction,,CO initial ambient composition; mole fraction
+PSI-69:FLEX-019,he_initial_mole_fraction,0,0,mole fraction,,He initial ambient composition; mole fraction
+PSI-69:FLEX-019,droplet_initial_diameter,3.39,3.39,mm,,Droplet initial diameter; mm
+PSI-69:FLEX-019,flame_extinction_diameter,,,mm,not_reported,Visible flame extinction diameter; mm
+PSI-69:FLEX-019,burning_rate,,0.9,,unavailable_in_source,Burning rate; mm
+PSI-69:FLEX-019,burn_time,4.2,4.2,s,,Burn time; s
+PSI-69:FLEX-019,test_end,,Disruption,,,Test end
+PSI-69:FLEX-069,flex_identifier,,193R002,,,FLEX Identifier
+PSI-69:FLEX-069,n2_initial_mole_fraction,0.84,0.84,mole fraction,,N initial ambient composition; mole fraction
+PSI-69:FLEX-069,co_initial_mole_fraction,0,0,mole fraction,,CO initial ambient composition; mole fraction
+PSI-69:FLEX-069,he_initial_mole_fraction,0,0,mole fraction,,He initial ambient composition; mole fraction
+PSI-69:FLEX-069,droplet_initial_diameter,1.1,1.1,mm,,Droplet initial diameter; mm
+PSI-69:FLEX-069,flame_extinction_diameter,0,0,mm,,Visible flame extinction diameter; mm
+PSI-69:FLEX-069,burning_rate,,0.94,,unavailable_in_source,Burning rate; mm
+PSI-69:FLEX-069,burn_time,1.3,1.3,s,,Burn time; s
+PSI-69:FLEX-069,test_end,,Completion,,,Test end
+PSI-69:FLEX-070,flex_identifier,,193F001,,,FLEX Identifier
+PSI-69:FLEX-070,n2_initial_mole_fraction,0.84,0.84,mole fraction,,N initial ambient composition; mole fraction
+PSI-69:FLEX-070,co_initial_mole_fraction,0,0,mole fraction,,CO initial ambient composition; mole fraction
+PSI-69:FLEX-070,he_initial_mole_fraction,0,0,mole fraction,,He initial ambient composition; mole fraction
+PSI-69:FLEX-070,droplet_initial_diameter,4.67,4.67,mm,,Droplet initial diameter; mm
+PSI-69:FLEX-070,flame_extinction_diameter,4.6,4.6,mm,,Visible flame extinction diameter; mm
+PSI-69:FLEX-070,burning_rate,,0.41,,unavailable_in_source,Burning rate; mm
+PSI-69:FLEX-070,burn_time,1.6,1.6,s,,Burn time; s
+PSI-69:FLEX-070,test_end,,Extinction,,,Test end
+PSI-69:FLEX-073,flex_identifier,,193F001,,,FLEX Identifier
+PSI-69:FLEX-073,n2_initial_mole_fraction,0.84,0.84,mole fraction,,N initial ambient composition; mole fraction
+PSI-69:FLEX-073,co_initial_mole_fraction,0,0,mole fraction,,CO initial ambient composition; mole fraction
+PSI-69:FLEX-073,he_initial_mole_fraction,0,0,mole fraction,,He initial ambient composition; mole fraction
+PSI-69:FLEX-073,droplet_initial_diameter,4.64,4.64,mm,,Droplet initial diameter; mm
+PSI-69:FLEX-073,flame_extinction_diameter,4.58,4.58,mm,,Visible flame extinction diameter; mm
+PSI-69:FLEX-073,burning_rate,,0.56,,unavailable_in_source,Burning rate; mm
+PSI-69:FLEX-073,burn_time,1.5,1.5,s,,Burn time; s
+PSI-69:FLEX-073,test_end,,Extinction,,,Test end
+PSI-69:FLEX-114,flex_identifier,,C11M201,,,FLEX Identifier
+PSI-69:FLEX-114,n2_initial_mole_fraction,0.45,0.45,mole fraction,,N initial ambient composition; mole fraction
+PSI-69:FLEX-114,co_initial_mole_fraction,0.35,0.35,mole fraction,,CO initial ambient composition; mole fraction
+PSI-69:FLEX-114,he_initial_mole_fraction,0,0,mole fraction,,He initial ambient composition; mole fraction
+PSI-69:FLEX-114,droplet_initial_diameter,3.23,3.23,mm,,Droplet initial diameter; mm
+PSI-69:FLEX-114,flame_extinction_diameter,1.68,1.68,mm,,Visible flame extinction diameter; mm
+PSI-69:FLEX-114,burning_rate,,0.42,,unavailable_in_source,Burning rate; mm
+PSI-69:FLEX-114,burn_time,18.9,18.9,s,,Burn time; s
+PSI-69:FLEX-114,test_end,,Extinction,,,Test end
+PSI-25:B1,principal_investigator,,Bhattacharjee,,,PI
+PSI-25:B1,gmt_day_of_year,50,50,day of year,,GMT
+PSI-25:B1,sample_number,147,147,1,,Sample #
+PSI-25:B1,flow_restrictor_count,2,2,1,,Flow restrictor
+PSI-25:B1,fan_display,,62,,,Fan display
+PSI-25:B1,air_display,,5,,,Air display
+PSI-25:B1,radiometer_gain,50,50,1,,Radiometer gain   (1000   250   50   10)
+PSI-25:B1,total_frames_shot,57,57,1,,Total Frames Shot
+PSI-25:B1,o2_final_vol_pct,22.2,22.2,% by vol,,Calibrated final O2 % by vol
+PSI-25:B1,co2_initial_vol_pct,0.44,0.44,% by vol,,Initial CO2 % by vol
+PSI-25:B1,co2_final_vol_pct,0.44,0.44,% by vol,,Final CO2 % by vol
+PSI-25:B1,co_initial_ppm,0,0,ppm,,Initial CO (ppm)
+PSI-25:B1,co_final_ppm,6,6,ppm,,Final CO (ppm)
+PSI-25:B4,principal_investigator,,Bhattacharjee,,,PI
+PSI-25:B4,gmt_day_of_year,50,50,day of year,,GMT
+PSI-25:B4,sample_number,159,159,1,,Sample #
+PSI-25:B4,flow_restrictor_count,2,2,1,,Flow restrictor
+PSI-25:B4,fan_display,,61,,,Fan display
+PSI-25:B4,air_display,,5,,,Air display
+PSI-25:B4,radiometer_gain,50,50,1,,Radiometer gain   (1000   250   50   10)
+PSI-25:B4,total_frames_shot,137,137,1,,Total Frames Shot
+PSI-25:B4,o2_final_vol_pct,22.2,22.2,% by vol,,Calibrated final O2 % by vol
+PSI-25:B4,co2_initial_vol_pct,0.44,0.44,% by vol,,Initial CO2 % by vol
+PSI-25:B4,co2_final_vol_pct,0.51,0.51,% by vol,,Final CO2 % by vol
+PSI-25:B4,co_initial_ppm,,-1,ppm,invalid_value,Initial CO (ppm)
+PSI-25:B4,co_final_ppm,10,10,ppm,,Final CO (ppm)
+PSI-25:F1,principal_investigator,,Ferkul,,,PI
+PSI-25:F1,gmt_day_of_year,50,50,day of year,,GMT
+PSI-25:F1,sample_number,227,227,1,,Sample #
+PSI-25:F1,flow_restrictor_count,2,2,1,,Flow restrictor
+PSI-25:F1,fan_display,,82,,,Fan display
+PSI-25:F1,air_display,,9.5,,,Air display
+PSI-25:F1,radiometer_gain,250,250,1,,Radiometer gain   (1000   250   50   10)
+PSI-25:F1,total_frames_shot,208,208,1,,Total Frames Shot
+PSI-25:F1,o2_final_vol_pct,22.2,22.2,% by vol,,Calibrated final O2 % by vol
+PSI-25:F1,co2_initial_vol_pct,0.46,0.46,% by vol,,Initial CO2 % by vol
+PSI-25:F1,co2_final_vol_pct,0.45,0.45,% by vol,,Final CO2 % by vol
+PSI-25:F1,co_initial_ppm,0,0,ppm,,Initial CO (ppm)
+PSI-25:F1,co_final_ppm,2,2,ppm,,Final CO (ppm)
+PSI-25:F4,principal_investigator,,Ferkul,,,PI
+PSI-25:F4,gmt_day_of_year,175,175,day of year,,GMT
+PSI-25:F4,sample_number,,39M,1,not_parseable,Sample #
+PSI-25:F4,flow_restrictor_count,2,2,1,,Flow restrictor
+PSI-25:F4,fan_display,,see notes,,,Fan display
+PSI-25:F4,air_display,,3 ign,,,Air display
+PSI-25:F4,radiometer_gain,250,250,1,,Radiometer gain   (1000   250   50   10)
+PSI-25:F4,total_frames_shot,270,270,1,,Total Frames Shot
+PSI-25:F4,o2_final_vol_pct,17.4,17.4,% by vol,,Calibrated final O2 % by vol
+PSI-25:F4,co2_initial_vol_pct,0.38,0.38,% by vol,,Initial CO2 % by vol
+PSI-25:F4,co2_final_vol_pct,0.48,0.48,% by vol,,Final CO2 % by vol
+PSI-25:F4,co_initial_ppm,22,22,ppm,,Initial CO (ppm)
+PSI-25:F4,co_final_ppm,56,56,ppm,,Final CO (ppm)
+PSI-25:O20,principal_investigator,,Olson,,,PI
+PSI-25:O20,gmt_day_of_year,57,57,day of year,,GMT
+PSI-25:O20,sample_number,,204m,1,not_parseable,Sample #
+PSI-25:O20,flow_restrictor_count,0,0,1,,Flow restrictor
+PSI-25:O20,fan_display,,49 (1.3 pot) pots 7 8 9 10,,,Fan display
+PSI-25:O20,air_display,,5 8 incr to max 38.5,,,Air display
+PSI-25:O20,radiometer_gain,50,50,1,,Radiometer gain   (1000   250   50   10)
+PSI-25:O20,total_frames_shot,,video,1,not_parseable,Total Frames Shot
+PSI-25:O20,o2_final_vol_pct,15.9,15.9,% by vol,,Calibrated final O2 % by vol
+PSI-25:O20,co2_initial_vol_pct,0.2,0.2,% by vol,,Initial CO2 % by vol
+PSI-25:O20,co2_final_vol_pct,0.57,0.57,% by vol,,Final CO2 % by vol
+PSI-25:O20,co_initial_ppm,,-3,ppm,invalid_value,Initial CO (ppm)
+PSI-25:O20,co_final_ppm,57,57,ppm,,Final CO (ppm)
+PSI-25:T1,principal_investigator,,T'ien,,,PI
+PSI-25:T1,gmt_day_of_year,45,45,day of year,,GMT
+PSI-25:T1,sample_number,128,128,1,,Sample #
+PSI-25:T1,flow_restrictor_count,2,2,1,,Flow restrictor
+PSI-25:T1,fan_display,,80,,,Fan display
+PSI-25:T1,air_display,,10,,,Air display
+PSI-25:T1,radiometer_gain,50,50,1,,Radiometer gain   (1000   250   50   10)
+PSI-25:T1,total_frames_shot,85,85,1,,Total Frames Shot
+PSI-25:T1,o2_final_vol_pct,18.5,18.5,% by vol,,Calibrated final O2 % by vol
+PSI-25:T1,co2_initial_vol_pct,0.35,0.35,% by vol,,Initial CO2 % by vol
+PSI-25:T1,co2_final_vol_pct,0.41,0.41,% by vol,,Final CO2 % by vol
+PSI-25:T1,co_initial_ppm,0,0,ppm,,Initial CO (ppm)
+PSI-25:T1,co_final_ppm,40,40,ppm,,Final CO (ppm)
+PSI-107:D45-143708-R001,gmt_day_of_year,45,45,day of year,,GMT date
+PSI-107:D45-143708-R001,gmt_ignition_raw,,14:37:08,,,GMT ignition
+PSI-107:D45-143708-R001,gmt_flame_off_raw,,14:48:03,,,GMT  Flame Off 
+PSI-107:D45-143708-R001,nozzle_diameter,1.6002,1.6002,mm,,Nozzle (mm)
+PSI-107:D45-143708-R001,fuel_rate_sccm,103.8,103.8,sccm,,Fuel Rate (sccm)
+PSI-107:D45-143708-R001,fuel_rate_mg_s,1.971,1.971,mg/s,,Fuel Rate (mg/s)
+PSI-107:D45-143708-R001,hc_fuel_rate_mg_s,1.971,1.971,mg/s,,HC Fuel Rate (mg/s)
+PSI-107:D45-143708-R002,gmt_day_of_year,45,45,day of year,,GMT date
+PSI-107:D45-143708-R002,gmt_ignition_raw,,14:37:08,,,GMT ignition
+PSI-107:D45-143708-R002,gmt_flame_off_raw,,14:48:03,,,GMT  Flame Off 
+PSI-107:D45-143708-R002,nozzle_diameter,1.6002,1.6002,mm,,Nozzle (mm)
+PSI-107:D45-143708-R002,fuel_rate_sccm,103.8,103.8,sccm,,Fuel Rate (sccm)
+PSI-107:D45-143708-R002,fuel_rate_mg_s,1.971,1.971,mg/s,,Fuel Rate (mg/s)
+PSI-107:D45-143708-R002,hc_fuel_rate_mg_s,1.971,1.971,mg/s,,HC Fuel Rate (mg/s)
+PSI-107:D45-145007-R003,gmt_day_of_year,45,45,day of year,,GMT date
+PSI-107:D45-145007-R003,gmt_ignition_raw,,14:50:07,,,GMT ignition
+PSI-107:D45-145007-R003,gmt_flame_off_raw,,14:52:11,,,GMT  Flame Off 
+PSI-107:D45-145007-R003,nozzle_diameter,1.6002,1.6002,mm,,Nozzle (mm)
+PSI-107:D45-145007-R003,fuel_rate_sccm,51,51,sccm,,Fuel Rate (sccm)
+PSI-107:D45-145007-R003,fuel_rate_mg_s,0.968,0.968,mg/s,,Fuel Rate (mg/s)
+PSI-107:D45-145007-R003,hc_fuel_rate_mg_s,0.968,0.968,mg/s,,HC Fuel Rate (mg/s)
+PSI-107:D45-145007-R004,gmt_day_of_year,45,45,day of year,,GMT date
+PSI-107:D45-145007-R004,gmt_ignition_raw,,14:50:07,,,GMT ignition
+PSI-107:D45-145007-R004,gmt_flame_off_raw,,14:52:11,,,GMT  Flame Off 
+PSI-107:D45-145007-R004,nozzle_diameter,1.6002,1.6002,mm,,Nozzle (mm)
+PSI-107:D45-145007-R004,fuel_rate_sccm,51.6,51.6,sccm,,Fuel Rate (sccm)
+PSI-107:D45-145007-R004,fuel_rate_mg_s,0.98,0.98,mg/s,,Fuel Rate (mg/s)
+PSI-107:D45-145007-R004,hc_fuel_rate_mg_s,0.98,0.98,mg/s,,HC Fuel Rate (mg/s)
+PSI-107:D48-144358-R030,gmt_day_of_year,48,48,day of year,,GMT date
+PSI-107:D48-144358-R030,gmt_ignition_raw,,14.43.58,,,GMT ignition
+PSI-107:D48-144358-R030,gmt_flame_off_raw,,14.44.16,,,GMT  Flame Off 
+PSI-107:D48-144358-R030,nozzle_diameter,0.4064,0.4064,mm,,Nozzle (mm)
+PSI-107:D48-144358-R030,fuel_rate_sccm,118.8,118.8,sccm,,Fuel Rate (sccm)
+PSI-107:D48-144358-R030,fuel_rate_mg_s,2.255,2.255,mg/s,,Fuel Rate (mg/s)
+PSI-107:D48-144358-R030,hc_fuel_rate_mg_s,2.255,2.255,mg/s,,HC Fuel Rate (mg/s)
+PSI-107:D136-165219-R295,gmt_day_of_year,136,136,day of year,,GMT date
+PSI-107:D136-165219-R295,gmt_ignition_raw,,16:52:19,,,GMT ignition
+PSI-107:D136-165219-R295,gmt_flame_off_raw,,16:52:40,,,GMT  Flame Off 
+PSI-107:D136-165219-R295,nozzle_diameter,0.4064,0.4064,mm,,Nozzle (mm)
+PSI-107:D136-165219-R295,fuel_rate_sccm,71.28,71.28,sccm,,Fuel Rate (sccm)
+PSI-107:D136-165219-R295,fuel_rate_mg_s,0.774,0.774,mg/s,,Fuel Rate (mg/s)
+PSI-107:D136-165219-R295,hc_fuel_rate_mg_s,0.436,0.436,mg/s,,HC Fuel Rate (mg/s)
+PSI-101:Kapton_51,rt_r0,1.38,1.38,ratio,,rt_r0
+PSI-101:Kapton_51,heater_temp_c_derived,419.928,419.9282463017443,degC,,heater_temp_c_derived
+PSI-101:Kapton_51,heating_duration_s,60,60.0,s,,heating_duration_s
+PSI-101:Kapton_51,primary_aging_s,11,11.0,s,,primary_aging_s
+PSI-101:Kapton_51,primary_mixing_s,8,8.0,s,,primary_mixing_s
+PSI-101:Kapton_51,net_aging_s,38,38.0,s,,net_aging_s
+PSI-101:Kapton_51,net_aging_s_workbook,38.1429,38.142857142857146,s,,net_aging_s_workbook
+PSI-101:Kapton_51,amd_um,0.056373,0.0563731190105457,um,,amd_um
+PSI-101:Kapton_51,dam_um,0.097108,0.09710821323096017,um,,dam_um
+PSI-101:Kapton_51,hc_sigma_g,2.0906,2.090599137468832,unitless,,hc_sigma_g
+PSI-101:Kapton_51,hc_dg_um,0.042952,0.04295167596178432,um,,hc_dg_um
+PSI-101:Kapton_51,m0_per_cm3,1.8256e+06,1825597.0139817814,1/cm3,,m0_per_cm3
+PSI-101:Kapton_51,m1_mm_per_cm3,102.915,102.91459773449184,mm/cm3,,m1_mm_per_cm3
+PSI-101:Kapton_51a,rt_r0,1.38,1.38,ratio,,rt_r0
+PSI-101:Kapton_51a,heater_temp_c_derived,419.928,419.9282463017443,degC,,heater_temp_c_derived
+PSI-101:Kapton_51a,heating_duration_s,60,60.0,s,,heating_duration_s
+PSI-101:Kapton_51a,net_aging_s,261,261.0,s,,net_aging_s
+PSI-101:Kapton_51a,net_aging_s_workbook,261.143,261.14285714285717,s,,net_aging_s_workbook
+PSI-101:Kapton_51a,amd_um,0.066816,0.0668156766313406,um,,amd_um
+PSI-101:Kapton_51a,dam_um,0.1155,0.11550042736986271,um,,dam_um
+PSI-101:Kapton_51a,hc_sigma_g,2.09556,2.0955623370880416,unitless,,hc_sigma_g
+PSI-101:Kapton_51a,hc_dg_um,0.050819,0.05081895854236607,um,,hc_dg_um
+PSI-101:Kapton_51a,m0_per_cm3,1.05992e+06,1059919.9201329139,1/cm3,,m0_per_cm3
+PSI-101:Kapton_51a,m1_mm_per_cm3,70.8193,70.81926663871712,mm/cm3,,m1_mm_per_cm3
+PSI-101:Kapton_112,rt_r0,1.48,1.48,ratio,,rt_r0
+PSI-101:Kapton_112,heater_temp_c_derived,583.204,583.2043671932628,degC,,heater_temp_c_derived
+PSI-101:Kapton_112,heating_duration_s,60,60.0,s,,heating_duration_s
+PSI-101:Kapton_112,primary_aging_s,11,11.0,s,,primary_aging_s
+PSI-101:Kapton_112,primary_mixing_s,8,8.0,s,,primary_mixing_s
+PSI-101:Kapton_112,net_aging_s_workbook,22.2857,22.285714285714285,s,,net_aging_s_workbook
+PSI-101:Kapton_112,mass_loss_mg,2.42,2.4199999999999777,mg,,mass_loss_mg
+PSI-101:Kapton_112,amd_um,0.190618,0.19061768489019365,um,,amd_um
+PSI-101:Kapton_112,dam_um,0.286666,0.28666637066468903,um,,dam_um
+PSI-101:Kapton_112,hc_sigma_g,1.89418,1.8941825311333986,unitless,,hc_sigma_g
+PSI-101:Kapton_112,hc_dg_um,0.155438,0.15543771805529163,um,,hc_dg_um
+PSI-101:Kapton_112,m0_per_cm3,1.61502e+06,1615017.6733915848,1/cm3,,m0_per_cm3
+PSI-101:Kapton_112,m1_mm_per_cm3,307.851,307.8509299586508,mm/cm3,,m1_mm_per_cm3
+PSI-101:GNDVERIF_1,rt_r0,1.445,1.445,ratio,,rt_r0
+PSI-101:GNDVERIF_1,heating_duration_s,60,60.0,s,,heating_duration_s
+PSI-101:GNDVERIF_1,primary_aging_s,11,11.0,s,,primary_aging_s
+PSI-101:GNDVERIF_1,primary_mixing_s,8,8.0,s,,primary_mixing_s
+PSI-101:GNDVERIF_1,mass_loss_mg,2.77,2.77,mg,,mass_loss_mg
+PSI-101:GNDVERIF_1,amd_um,0.09343,0.09342995031244071,um,,amd_um
+PSI-101:GNDVERIF_1,dam_um,0.134379,0.1343792968854397,um,,dam_um
+PSI-101:GNDVERIF_1,hc_sigma_g,1.82736,1.827359092641527,unitless,,hc_sigma_g
+PSI-101:GNDVERIF_1,hc_dg_um,0.077905,0.0779045807333736,um,,hc_dg_um
+PSI-101:GNDVERIF_1,m0_per_cm3,2.58795e+06,2587946.924753646,1/cm3,,m0_per_cm3
+PSI-101:GNDVERIF_1,m1_mm_per_cm3,241.792,241.79175259096687,mm/cm3,,m1_mm_per_cm3
+PSI-102:FLIGHT_1,rt_r0,1.327,1.327,ratio,,rt_r0
+PSI-102:FLIGHT_1,heating_duration_s,40,40.0,s,,heating_duration_s
+PSI-102:FLIGHT_1,primary_aging_s,8,8.0,s,,primary_aging_s
+PSI-102:FLIGHT_1,mass_loss_mg,0.68,0.68,mg,,mass_loss_mg
+PSI-102:GROUND_23S,rt_r0,1.327,1.327,ratio,,rt_r0
+PSI-102:GROUND_23S,heating_duration_s,45,45.0,s,,heating_duration_s
+PSI-102:GROUND_23S,primary_aging_s,11,11.0,s,,primary_aging_s
+PSI-102:GROUND_23S,primary_mixing_s,8,8.0,s,,primary_mixing_s
+PSI-102:GROUND_23S,dam_dusttrak_a_um,0.349682,0.34968221813232664,um,,dam_dusttrak_a_um
+PSI-102:GROUND_23S,dam_dusttrak_b_um,0.390354,0.3903540032002515,um,,dam_dusttrak_b_um
+PSI-102:GROUND_23S,cmd_um,0.291823,0.29182331856446875,um,,cmd_um
+PSI-102:GROUND_23S,m1_mm_per_cm3,93.3686,93.36860183275063,mm/cm3,,m1_mm_per_cm3
+PSI-102:TABLE_4,aging_duration_s,60,60.0,s,,aging_duration_s
+PSI-102:TABLE_4,weight_loss_rate_mg_min,2,2.0,mg/min,,weight_loss_rate_mg_min
+PSI-98:S1,flow_direction,,concurrent,,,flow_direction
+PSI-98:S1,o2_vol_pct_low,21.5,21.5,% vol,,o2_vol_pct_low
+PSI-98:S1,o2_vol_pct_high,21.7,21.7,% vol,,o2_vol_pct_high
+PSI-98:S1,ignition_power_w,182,182.0,W,,ignition_power_w
+PSI-98:S1,ignition_time_s,8,8.0,s,,ignition_time_s
+PSI-98:S1,burn_time_s,420,420.0,s,,burn_time_s
+PSI-98:S1,sample_thickness_mm,3.7,3.7,mm,,sample_thickness_mm
+PSI-98:S1,sample_length_mm,940,940.0,mm,,sample_length_mm
+PSI-98:S1,sample_width_mm,406,406.0,mm,,sample_width_mm
+PSI-98:S2,flow_direction,,opposed,,,flow_direction
+PSI-98:S2,o2_vol_pct_low,21.5,21.5,% vol,,o2_vol_pct_low
+PSI-98:S2,o2_vol_pct_high,21.5,21.5,% vol,,o2_vol_pct_high
+PSI-98:S2,ignition_power_w,182,182.0,W,,ignition_power_w
+PSI-98:S2,ignition_time_s,8,8.0,s,,ignition_time_s
+PSI-98:S2,burn_time_s,70,70.0,s,,burn_time_s
+PSI-98:S2,sample_thickness_mm,3.7,3.7,mm,,sample_thickness_mm
+PSI-98:S2,sample_length_mm,940,940.0,mm,,sample_length_mm
+PSI-98:S2,sample_width_mm,406,406.0,mm,,sample_width_mm

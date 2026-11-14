@@ -1,0 +1,169 @@
+{
+  "query": {
+    "domain": "liquid_droplet",
+    "gravity": "microgravity",
+    "conditions": {
+      "o2_percent": 21.0,
+      "pressure_psi": 14.7
+    },
+    "weights": {
+      "o2_percent": 0.5,
+      "pressure_psi": 0.5
+    },
+    "not_measured_in_domain": [],
+    "variables_used": [
+      "o2_percent",
+      "pressure_psi"
+    ]
+  },
+  "results": [
+    {
+      "rank": 1,
+      "experiment_id": "PSI-69:FLEX-202",
+      "score": 1.0,
+      "similarity": 1.0,
+      "distance": 0.0,
+      "coverage": 1.0,
+      "matched_variables": [
+        "o2_percent",
+        "pressure_psi"
+      ],
+      "missing_variables": [],
+      "breakdown": [
+        {
+          "variable": "o2_percent",
+          "label": "Oxygen (%)",
+          "selected_value": 21.0,
+          "experiment_value": 21.0,
+          "normalized_difference": 0.0,
+          "weight_used": 0.5,
+          "closeness": "very close",
+          "missing_reason": null
+        },
+        {
+          "variable": "pressure_psi",
+          "label": "Pressure (psi)",
+          "selected_value": 14.7,
+          "experiment_value": 14.699719784037999,
+          "normalized_difference": 0.0,
+          "weight_used": 0.5,
+          "closeness": "very close",
+          "missing_reason": null
+        }
+      ],
+      "explanation": "Relevance score 1.00. Compared on 2 of 2 selected variables. Oxygen (%): very close (experiment 21 vs selected 21); Pressure (psi): very close (experiment 14.6997 vs selected 14.7).",
+      "source_link": "https://doi.org/10.60555/mbq8-0451",
+      "context": {
+        "investigation": "FLEX",
+        "source_id": "PSI-69",
+        "native_test_id": "202",
+        "fuel": "methanol",
+        "platform": "ISS",
+        "gravity_level": "microgravity",
+        "dup_status": "unique",
+        "qa_flags": null
+      }
+    },
+    {
+      "rank": 2,
+      "experiment_id": "PSI-69:FLEX-206",
+      "score": 1.0,
+      "similarity": 1.0,
+      "distance": 0.0,
+      "coverage": 1.0,
+      "matched_variables": [
+        "o2_percent",
+        "pressure_psi"
+      ],
+      "missing_variables": [],
+      "breakdown": [
+        {
+          "variable": "o2_percent",
+          "label": "Oxygen (%)",
+          "selected_value": 21.0,
+          "experiment_value": 21.0,
+          "normalized_difference": 0.0,
+          "weight_used": 0.5,
+          "closeness": "very close",
+          "missing_reason": null
+        },
+        {
+          "variable": "pressure_psi",
+          "label": "Pressure (psi)",
+          "selected_value": 14.7,
+          "experiment_value": 14.699719784037999,
+          "normalized_difference": 0.0,
+          "weight_used": 0.5,
+          "closeness": "very close",
+          "missing_reason": null
+        }
+      ],
+      "explanation": "Relevance score 1.00. Compared on 2 of 2 selected variables. Oxygen (%): very close (experiment 21 vs selected 21); Pressure (psi): very close (experiment 14.6997 vs selected 14.7).",
+      "source_link": "https://doi.org/10.60555/mbq8-0451",
+      "context": {
+        "investigation": "FLEX",
+        "source_id": "PSI-69",
+        "native_test_id": "206",
+        "fuel": "heptane",
+        "platform": "ISS",
+        "gravity_level": "microgravity",
+        "dup_status": "unique",
+        "qa_flags": null
+      }
+    },
+    {
+      "rank": 3,
+      "experiment_id": "PSI-69:FLEX-004",
+      "score": 0.9999,
+      "similarity": 0.9999,
+      "distance": 0.0001,
+      "coverage": 1.0,
+      "matched_variables": [
+        "o2_percent",
+        "pressure_psi"
+      ],
+      "missing_variables": [],
+      "breakdown": [
+        {
+          "variable": "o2_percent",
+          "label": "Oxygen (%)",
+          "selected_value": 21.0,
+          "experiment_value": 21.0,
+          "normalized_difference": 0.0,
+          "weight_used": 0.5,
+          "closeness": "very close",
+          "missing_reason": null
+        },
+        {
+          "variable": "pressure_psi",
+          "label": "Pressure (psi)",
+          "selected_value": 14.7,
+          "experiment_value": 14.695948802850001,
+          "normalized_difference": 0.0001,
+          "weight_used": 0.5,
+          "closeness": "very close",
+          "missing_reason": null
+        }
+      ],
+      "explanation": "Relevance score 1.00. Compared on 2 of 2 selected variables. Oxygen (%): very close (experiment 21 vs selected 21); Pressure (psi): very close (experiment 14.6959 vs selected 14.7).",
+      "source_link": "https://doi.org/10.60555/mbq8-0451",
+      "context": {
+        "investigation": "FLEX",
+        "source_id": "PSI-69",
+        "native_test_id": "4",
+        "fuel": "methanol",
+        "platform": "ISS",
+        "gravity_level": "microgravity",
+        "dup_status": "unique",
+        "qa_flags": null
+      }
+    }
+  ],
+  "notes": [
+    "712 experiments were not compared because they belong to a different combustion domain or gravity regime."
+  ],
+  "n_candidates": 274,
+  "n_excluded_by_domain_or_gravity": 712,
+  "n_dropped_insufficient_data": 0,
+  "disclaimer": "Ranks research relevance only (similarity of test conditions). Not a fire-risk score, not an ignition probability, and not a prediction of fire behaviour in lunar or Martian gravity. Decision-support prototype."
+}

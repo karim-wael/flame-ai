@@ -1,7 +1,0 @@
-flame_id,fuel_gas,gravity_condition,burner_nozzle_mm,o2_mol_pct,chamber_pressure_kpa,coflow_air_m_s,fuel_flow_mg_s,flame_length_mm,soot_smoke_point_mg_s,peak_radiative_loss_fraction,notes
-SPICE-F01,Ethylene (C2H4),microgravity,1.6,21.0,101.3,0.10,1.25,21.4,1.18,0.42,"Closed-tip luminous soot-emitting flame in MSG glovebox"
-SPICE-F02,Ethylene (C2H4),microgravity,1.6,21.0,101.3,0.20,1.45,24.8,1.52,0.38,"Higher co-flow velocity increases smoke-point fuel flow threshold"
-SPICE-F03,Propane (C3H8),microgravity,2.0,21.0,101.3,0.12,1.10,27.1,1.34,0.44,"Laminar round jet diffusion flame; broader reaction zone than 1g"
-SPICE-F04,Propane (C3H8),microgravity,0.8,21.0,101.3,0.15,0.95,16.2,,0.31,"Sub-sooting non-smoking flame; smoke point not reached at max flow"
-SPICE-F05,Methane (CH4),microgravity,1.6,21.0,101.3,0.10,1.80,29.5,2.45,0.26,"Lower soot propensity fuel; extended blue base with yellow tip"
-SPICE-F06,Ethylene (C2H4),normal_gravity,1.6,21.0,101.3,0.10,1.25,31.0,2.10,0.21,"Analogous 1g ground reference run included in PSI-107 archive"

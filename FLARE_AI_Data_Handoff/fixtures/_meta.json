@@ -1,0 +1,72 @@
+{
+  "is_fixture": true,
+  "contract_version": "v0.3",
+  "etl_version": "0.1.0",
+  "generated_utc": "2026-11-14T03:34:41+00:00",
+  "runs": 28,
+  "measurements": 254,
+  "corpus_chunks": 15,
+  "coverage_rows": 33,
+  "issues_rows": 31,
+  "run_ids_by_source": {
+    "PSI-69": [
+      "PSI-69:FLEX-007",
+      "PSI-69:FLEX-019",
+      "PSI-69:FLEX-114",
+      "PSI-69:FLEX-070",
+      "PSI-69:FLEX-073",
+      "PSI-69:FLEX-069"
+    ],
+    "PSI-25": [
+      "PSI-25:B1",
+      "PSI-25:B4",
+      "PSI-25:O20",
+      "PSI-25:T1",
+      "PSI-25:F1",
+      "PSI-25:F4"
+    ],
+    "PSI-107": [
+      "PSI-107:D45-143708-R001",
+      "PSI-107:D45-143708-R002",
+      "PSI-107:D45-145007-R003",
+      "PSI-107:D45-145007-R004",
+      "PSI-107:D136-165219-R295",
+      "PSI-107:D48-144358-R030"
+    ],
+    "PSI-101": [
+      "PSI-101:Kapton_51",
+      "PSI-101:Kapton_51a",
+      "PSI-101:Kapton_112",
+      "PSI-101:GNDVERIF_1"
+    ],
+    "PSI-102": [
+      "PSI-102:FLIGHT_1",
+      "PSI-102:GROUND_23S",
+      "PSI-102:TABLE_4",
+      "PSI-102:TABLE_5"
+    ],
+    "PSI-98": [
+      "PSI-98:S1",
+      "PSI-98:S2"
+    ]
+  },
+  "edge_cases_covered": [
+    "clean_unique_runs (all 6 sources)",
+    "exploration_habitat_sub_atm_enriched_o2 (PSI-69)",
+    "impossible_value_nulled (PSI-69 Test 114, 0 mmHg -> NULL + invalid_value)",
+    "identifier_reused (PSI-69 Tests 183 & 184 sharing 193F001)",
+    "gas_sum_off (PSI-69 rounding sum 0.98)",
+    "pending_review_fan_calibration (PSI-25 numeric Air display)",
+    "negative_gas_reading (PSI-25 Initial CO = -1 ppm)",
+    "date_year_typo_in_source (PSI-25 2016/2018 year typo)",
+    "exact_duplicate_pair_with_dup_of (PSI-107)",
+    "near_duplicate_pair_with_dup_of (PSI-107)",
+    "below_physical_range_negative_cal_intercept (PSI-107 Air Rate = -5.92 / -0.28 cm/s)",
+    "not_reported_missing_airflow (PSI-107 & PSI-102 blank airflow)",
+    "secondary_aging_remeasurement_with_parent_dup_of (PSI-101:Kapton_51a -> PSI-101:Kapton_51)",
+    "added_from_workbook (PSI-101:Kapton_112)",
+    "normal_gravity_1g_ground_baselines (PSI-101:GNDVERIF_1 & PSI-102:GROUND_23S)",
+    "outside_documented_hardware_range (PSI-102:TABLE_4 at 10 cm/s)",
+    "cygnus_large_scale_burns_and_swapped_dimensions (PSI-98:S1 & PSI-98:S2)"
+  ]
+}

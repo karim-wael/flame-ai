@@ -1,0 +1,125 @@
+{
+  "contract_version": "v0.3",
+  "etl_version": "0.1.0",
+  "generated_utc": "2026-11-14T03:34:41+00:00",
+  "runs": 1157,
+  "measurements": 10079,
+  "rejected": 0,
+  "corpus": {
+    "total_chunks": 1312,
+    "docs_processed": 21,
+    "skipped_docs": [
+      {
+        "source_id": "PSI-107",
+        "doc_file": "PSI-107_SPICE/60054MAFH000-C SPICE Experiment Assembly.pdf",
+        "reason": "no_extractable_text (scanned drawing / image-only PDF)"
+      }
+    ],
+    "chunks_by_source": {
+      "PSI-107": 447,
+      "PSI-25": 466,
+      "PSI-69": 399
+    }
+  },
+  "fixtures": {
+    "runs": 28,
+    "measurements": 254,
+    "corpus_chunks": 15
+  },
+  "by_source": {
+    "PSI-69": {
+      "parsed": 274,
+      "kept": 274,
+      "rejected": 0,
+      "dup_status": {
+        "unique": 274
+      },
+      "has_o2": 274,
+      "has_pressure": 273,
+      "has_flow": 0,
+      "qa_flags": {
+        "gas_sum_off": 6,
+        "identifier_reused": 2,
+        "impossible_value_nulled": 1
+      }
+    },
+    "PSI-25": {
+      "parsed": 129,
+      "kept": 129,
+      "rejected": 0,
+      "dup_status": {
+        "unique": 129
+      },
+      "has_o2": 129,
+      "has_pressure": 0,
+      "has_flow": 0,
+      "qa_flags": {
+        "fuel_label_normalised": 129,
+        "negative_gas_reading": 13,
+        "date_year_typo_in_source": 5
+      }
+    },
+    "PSI-107": {
+      "parsed": 469,
+      "kept": 469,
+      "rejected": 0,
+      "dup_status": {
+        "unique": 412,
+        "exact_duplicate": 34,
+        "near_duplicate": 23
+      },
+      "has_o2": 0,
+      "has_pressure": 0,
+      "has_flow": 444,
+      "qa_flags": {
+        "fuel_label_normalised": 230,
+        "below_physical_range": 8
+      }
+    },
+    "PSI-101": {
+      "parsed": 169,
+      "kept": 169,
+      "rejected": 0,
+      "dup_status": {
+        "unique": 169
+      },
+      "has_o2": 0,
+      "has_pressure": 0,
+      "has_flow": 169,
+      "qa_flags": {
+        "secondary_aging_remeasurement": 72,
+        "added_from_workbook": 1
+      }
+    },
+    "PSI-102": {
+      "parsed": 114,
+      "kept": 114,
+      "rejected": 0,
+      "dup_status": {
+        "unique": 114
+      },
+      "has_o2": 0,
+      "has_pressure": 0,
+      "has_flow": 102,
+      "qa_flags": {
+        "outside_documented_hardware_range": 2,
+        "secondary_aging_remeasurement": 34
+      }
+    },
+    "PSI-98": {
+      "parsed": 2,
+      "kept": 2,
+      "rejected": 0,
+      "dup_status": {
+        "unique": 2
+      },
+      "has_o2": 2,
+      "has_pressure": 0,
+      "has_flow": 2,
+      "qa_flags": {
+        "dimensions_swapped_in_source": 2,
+        "suspect_thickness_unit": 2
+      }
+    }
+  }
+}

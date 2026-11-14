@@ -23,10 +23,10 @@ export const GRAVITY_LABEL: Record<string, string> = {
 
 /** The main measured result we chart for each fuel type. */
 export const OUTCOME_BY_DOMAIN: Record<string, { field: string; label: string; unit: string }> = {
-  solid: { field: "flame_spread_rate", label: "Flame spread rate", unit: "mm/s" },
-  gas: { field: "flame_height", label: "Flame length", unit: "mm" },
-  liquid_droplet: { field: "burning_rate", label: "Burning rate", unit: "mm²/s" },
-  aerosol_smoke: { field: "smoke_particle_size", label: "Smoke particle size", unit: "µm" },
+  solid: { field: "burn_time", label: "Burn time", unit: "s" },
+  gas: { field: "fuel_rate", label: "Fuel rate", unit: "mg/s" },
+  liquid_droplet: { field: "burn_time", label: "Burn time", unit: "s" },
+  aerosol_smoke: { field: "smoke_particle_size", label: "Smoke particle size (DAM)", unit: "µm" },
 };
 
 export const FIELD_LABEL: Record<string, string> = {

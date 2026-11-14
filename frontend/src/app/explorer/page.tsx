@@ -84,8 +84,6 @@ export default function ExplorerPage() {
           <Select label="Data source" value={source} onChange={setSource}>
             <option value="">All sources</option>
             <option value="NASA PSI">NASA PSI</option>
-            <option value="JAXA DARTS">JAXA DARTS</option>
-            <option value="UL FSRI">UL FSRI</option>
           </Select>
           <Select label="Fuel type" value={domain} onChange={setDomain}>
             <option value="">All fuels</option>
@@ -188,7 +186,9 @@ function StudyDetail({ id }: { id: string }) {
 
 function StudyBody({ inv }: { inv: InvestigationDetail }) {
   const openProvenance = useProvenance();
+  const [visibleCount, setVisibleCount] = useState(30);
   const runs = inv.experiment_runs;
+  const visibleRuns = runs.slice(0, visibleCount);
   const focus = typeof inv.source_metadata?.focus === "string" ? inv.source_metadata.focus : null;
   const o2 = runs.map((r) => r.oxygen_fraction).filter((v): v is number => v !== null);
   const o2Range = o2.length ? (Math.min(...o2) === Math.max(...o2) ? pct(o2[0]) : `${pct(Math.min(...o2))} – ${pct(Math.max(...o2))}`) : "—";
@@ -260,9 +260,18 @@ function StudyBody({ inv }: { inv: InvestigationDetail }) {
         <EmptyState icon="inbox" title="No test runs recorded for this study" />
       ) : (
         <div className="flex flex-col gap-space-sm">
-          {runs.map((run, i) => (
+          {visibleRuns.map((run, i) => (
             <RunCard key={run.id} run={run} defaultOpen={i === 0} />
           ))}
+          {runs.length > visibleCount && (
+            <button
+              type="button"
+              onClick={() => setVisibleCount((c) => c + 50)}
+              className="btn-ghost self-center"
+            >
+              Show 50 more runs ({runs.length - visibleCount} remaining)
+            </button>
+          )}
         </div>
       )}
 
